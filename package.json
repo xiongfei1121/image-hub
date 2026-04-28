@@ -1,0 +1,26 @@
+{
+  "name": "image-hub",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@xenova/transformers": "^2.17.2",
+    "libcaesium": "^1.0.0",
+    "@nuxt/image": "^1.7.0",
+    "pinia": "^2.2.0",
+    "@pinia/nuxt": "^0.5.4"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "^1.6.0",
+    "@nuxtjs/tailwindcss": "^6.12.0",
+    "nuxt": "^4.0.0",
+    "vue": "^3.5.0",
+    "vue-router": "^4.4.0"
+  }
+}
