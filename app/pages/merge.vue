@@ -215,7 +215,7 @@
               <img :src="img.preview" class="w-12 h-12 object-cover rounded" />
               <div class="text-xs">
                 <p class="truncate w-20">{{ img.name }}</p>
-                <p class="text-gray-500">{{ Math.round(img.scaledWidth) }}×{{ Math.round(img.scaledHeight) }}</p>
+                <p class="text-gray-500">{{ round(img.scaledWidth) }}×{{ round(img.scaledHeight) }}</p>
               </div>
               <button
                 @click.stop="removeImage(i)"
@@ -323,15 +323,18 @@ const previewScale = ref(800)
 
 // Compute actual dimensions for display
 const getDisplaySize = (img) => ({
-  left: Math.round(img.x / canvasWidth.value * previewScale.value),
-  top: Math.round(img.y / canvasHeight.value * previewScale.value),
-  width: Math.round(img.scaledWidth / canvasWidth.value * previewScale.value),
-  height: Math.round(img.scaledHeight / canvasHeight.value * previewScale.value)
+  left: round(img.x / canvasWidth.value * previewScale.value),
+  top: round(img.y / canvasHeight.value * previewScale.value),
+  width: round(img.scaledWidth / canvasWidth.value * previewScale.value),
+  height: round(img.scaledHeight / canvasHeight.value * previewScale.value)
 })
 const canvasContainer = ref(null)
 
 // Selection
 const selectedImage = ref(null)
+
+// Helper function
+const round = (n) => Math.round(n)
 
 // Drag state
 const dragging = ref(null)
