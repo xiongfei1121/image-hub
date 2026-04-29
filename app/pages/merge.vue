@@ -123,7 +123,7 @@
           class="relative bg-white rounded border overflow-hidden"
           :style="{
             width: previewScale + 'px',
-            height: previewScale + 'px',
+            height: (previewScale * canvasHeight / canvasWidth) + 'px',
             backgroundColor: backgroundColor
           }"
           @wheel.prevent="handleWheel"
@@ -151,8 +151,8 @@
             :style="{
               left: (img.x / canvasWidth * previewScale) + 'px',
               top: (img.y / canvasHeight * previewScale) + 'px',
-              width: ((img.scaledWidth / canvasWidth) * previewScale) + 'px',
-              height: ((img.scaledHeight / canvasHeight) * previewScale) + 'px'
+              width: (img.scaledWidth / canvasWidth * previewScale) + 'px',
+              height: (img.scaledHeight / canvasHeight * previewScale) + 'px'
             }"
             @mousedown.stop="startImageDrag($event, i)"
             @click.stop="selectedImage = i"
