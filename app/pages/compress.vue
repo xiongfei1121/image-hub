@@ -30,9 +30,9 @@
     <!-- Drop Area -->
     <div
       class="border-2 border-dashed rounded-lg p-8 text-center mb-4"
-      :class="isDraggers ? 'border-blue-500 bg-blue-50' : 'border-gray-300'"
-      @dragover.prevent="isDraggers = true"
-      @dragleave="isDraggers = false"
+      :class="isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'"
+      @dragover.prevent="isDragging = true"
+      @dragleave="isDragging = false"
       @drop.prevent="handleDrop"
     >
       <p class="text-gray-500 mb-4">拖拽图片到这里，或点击选择</p>
@@ -116,7 +116,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 const quality = ref(80)
 const keepMetadata = ref(false)
-const isDraggers = ref(false)
+const isDragging = ref(false)
 const compressing = ref(false)
 const statusMessage = ref('')
 const statusError = ref(false)
@@ -167,7 +167,7 @@ onUnmounted(() => {
 })
 
 function handleDrop(e) {
-  isDraggers.value = false
+  isDragging.value = false
   const dropped = Array.from(e.dataTransfer.files)
   addFiles(dropped)
 }
