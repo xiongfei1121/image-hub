@@ -274,6 +274,7 @@ function handleFileSelect(e) {
 }
 
 function loadNewImage() {
+  if (!import.meta.client) return
   const input = document.createElement('input')
   input.type = 'file'
   input.accept = 'image/*'
@@ -286,6 +287,8 @@ function loadNewImage() {
 }
 
 async function loadImage(file) {
+  if (!import.meta.client) return
+  
   if (currentImage.value?.url) URL.revokeObjectURL(currentImage.value.url)
   if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
   resultUrl.value = null
