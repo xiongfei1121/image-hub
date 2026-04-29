@@ -1,18 +1,18 @@
 <template>
   <div>
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">图像拼接</h1>
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">鍥惧儚鎷兼帴</h1>
     
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Settings Panel -->
       <div class="bg-white rounded-lg border p-4 space-y-4">
-        <h2 class="font-medium border-b pb-2">设置</h2>
+        <h2 class="font-medium border-b pb-2">璁剧疆</h2>
         
         <!-- Canvas Size -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">画布尺寸</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">鐢诲竷灏哄</label>
           <div class="flex gap-2">
             <div class="flex-1">
-              <label class="text-xs text-gray-500">宽 px</label>
+              <label class="text-xs text-gray-500">瀹?px</label>
               <input
                 v-model.number="canvasWidth"
                 type="number"
@@ -22,7 +22,7 @@
               />
             </div>
             <div class="flex-1">
-              <label class="text-xs text-gray-500">高 px</label>
+              <label class="text-xs text-gray-500">楂?px</label>
               <input
                 v-model.number="canvasHeight"
                 type="number"
@@ -36,7 +36,7 @@
         
         <!-- Background -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">背景色</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">鑳屾櫙鑹?/label>
           <input
             v-model="backgroundColor"
             type="color"
@@ -46,19 +46,19 @@
         
         <!-- Layout -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">排列方式</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">鎺掑垪鏂瑰紡</label>
           <select v-model="defaultLayout" class="w-full px-2 py-1 border rounded">
-            <option value="free">自由拖拽</option>
-            <option value="horizontal">横向平铺</option>
-            <option value="vertical">纵向平铺</option>
-            <option value="grid">网格拼贴</option>
-            <option value="masonry">瀑布流</option>
+            <option value="free">鑷敱鎷栨嫿</option>
+            <option value="horizontal">妯悜骞抽摵</option>
+            <option value="vertical">绾靛悜骞抽摵</option>
+            <option value="grid">缃戞牸鎷艰创</option>
+            <option value="masonry">鐎戝竷娴?/option>
           </select>
         </div>
         
         <!-- Gap -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">间距 px</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">闂磋窛 px</label>
           <input
             v-model.number="gap"
             type="number"
@@ -70,7 +70,7 @@
         
         <!-- Scale -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">缩放比例 %</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">缂╂斁姣斾緥 %</label>
           <input
             v-model.number="globalScale"
             type="range"
@@ -83,7 +83,7 @@
         
         <!-- Add Images -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">添加图片</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">娣诲姞鍥剧墖</label>
           <input
             type="file"
             accept="image/*"
@@ -98,14 +98,14 @@
           :disabled="placedImages.length === 0"
           class="w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50"
         >
-          应用排列
+          搴旂敤鎺掑垪
         </button>
       </div>
       
       <!-- Canvas Preview -->
       <div class="lg:col-span-2 bg-gray-100 rounded-lg p-4">
         <div class="flex items-center gap-4 mb-2">
-          <span class="text-sm text-gray-600">画布预览</span>
+          <span class="text-sm text-gray-600">鐢诲竷棰勮</span>
           <input
             v-model.number="previewScale"
             type="range"
@@ -116,12 +116,7 @@
           />
           <span class="text-xs text-gray-500">{{ previewScale }}px</span>
         </div>
-          <span class="text-sm text-gray-600">画布预览 - 拖拽移动 / 滚轮缩放</span>
-          <span class="text-xs text-gray-500">
-            {{ canvasWidth }} × {{ canvasHeight }} px | {{ placedImages.length }} 张
-          </span>
-        </div>
-        
+
         <!-- Canvas Container -->
         <div
           ref="canvasContainer"
@@ -181,7 +176,7 @@
             v-if="placedImages.length === 0"
             class="absolute inset-0 flex items-center justify-center text-gray-400"
           >
-            <p>添加图片后拖拽移动位置</p>
+            <p>娣诲姞鍥剧墖鍚庢嫋鎷界Щ鍔ㄤ綅缃?/p>
           </div>
         </div>
         
@@ -193,14 +188,14 @@
               class="px-3 py-1 text-sm rounded"
               :class="showGrid ? 'bg-blue-500 text-white' : 'bg-gray-200'"
             >
-              网格 {{ showGrid ? '✓' : '' }}
+              缃戞牸 {{ showGrid ? '鉁? : '' }}
             </button>
             <button
               @click="autoSize = !autoSize"
               class="px-3 py-1 text-sm rounded"
               :class="autoSize ? 'bg-blue-500 text-white' : 'bg-gray-200'"
             >
-              自动适应 {{ autoSize ? '✓' : '' }}
+              鑷姩閫傚簲 {{ autoSize ? '鉁? : '' }}
             </button>
           </div>
           
@@ -215,21 +210,20 @@
               <img :src="img.preview" class="w-12 h-12 object-cover rounded" />
               <div class="text-xs">
                 <p class="truncate w-20">{{ img.name }}</p>
-                <p class="text-gray-500">{{ round(img.scaledWidth) }}×{{ round(img.scaledHeight) }}</p>
+                <p class="text-gray-500">{{ round(img.scaledWidth) }}脳{{ round(img.scaledHeight) }}</p>
               </div>
               <button
                 @click.stop="removeImage(i)"
                 class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100"
               >
-                ✕
-              </button>
+                鉁?              </button>
             </div>
             
             <div
               v-if="placedImages.length === 0"
               class="text-gray-400 text-sm p-4"
             >
-              点击上方"添加图片"按钮选择图片
+              鐐瑰嚮涓婃柟"娣诲姞鍥剧墖"鎸夐挳閫夋嫨鍥剧墖
             </div>
           </div>
         </div>
@@ -237,12 +231,11 @@
         <!-- Selected Image Controls -->
         <div v-if="selectedImage !== null && placedImages[selectedImage]" class="mt-4 p-3 bg-white rounded border">
           <p class="text-sm font-medium mb-2">
-            当前: {{ placedImages[selectedImage].name }}
+            褰撳墠: {{ placedImages[selectedImage].name }}
           </p>
           <div class="flex gap-4 text-sm">
             <label>
-              宽
-              <input
+              瀹?              <input
                 v-model.number="placedImages[selectedImage].scaledWidth"
                 type="number"
                 class="w-20 px-1 py-0.5 border rounded"
@@ -250,8 +243,7 @@
               />
             </label>
             <label>
-              高
-              <input
+              楂?              <input
                 v-model.number="placedImages[selectedImage].scaledHeight"
                 type="number"
                 class="w-20 px-1 py-0.5 border rounded"
@@ -284,14 +276,14 @@
             :disabled="placedImages.length === 0 || rendering"
             class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
-            {{ rendering ? '渲染中...' : '渲染并下载' }}
+            {{ rendering ? '娓叉煋涓?..' : '娓叉煋骞朵笅杞? }}
           </button>
           <button
             @click="clearAll"
             :disabled="placedImages.length === 0"
             class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
           >
-            清空
+            娓呯┖
           </button>
         </div>
         
