@@ -154,10 +154,10 @@
             class="absolute cursor-move group"
             :class="{ 'ring-2 ring-blue-500': selectedImage === i }"
             :style="{
-              left: img.x * previewScale / canvasWidth + 'px',
-              top: img.y * previewScale / canvasHeight + 'px',
-              width: img.scaledWidth * previewScale / canvasWidth + 'px',
-              height: img.scaledHeight * previewScale / canvasHeight + 'px'
+              left: (img.x / canvasWidth * previewScale) + 'px',
+              top: (img.y / canvasHeight * previewScale) + 'px',
+              width: ((img.scaledWidth / canvasWidth) * previewScale) + 'px',
+              height: ((img.scaledHeight / canvasHeight) * previewScale) + 'px'
             }"
             @mousedown.stop="startImageDrag($event, i)"
             @click.stop="selectedImage = i"
@@ -165,12 +165,13 @@
             <img
               :src="img.preview"
               class="w-full h-full object-contain pointer-events-none select-none"
+              style="aspect-ratio: auto"
               draggable="false"
             />
-            <!-- Resize handles -->
+            <!-- Resize handle -->
             <div
               v-if="selectedImage === i"
-              class="absolute bottom-0 right-0 w-4 h-4 bg-blue-500 cursor-se-resize"
+              class="absolute bottom-0 right-0 w-3 h-3 bg-blue-500 rounded-tr cursor-se-resize"
               @mousedown.stop="startResize($event, i)"
             />
           </div>
@@ -319,6 +320,14 @@ const rendering = ref(false)
 const resultUrl = ref('')
 const placedImages = ref([])
 const previewScale = ref(800)
+
+// Compute actual dimensions for display
+const getDisplaySize = (img) => ({
+  left: Math.round(img.x / canvasWidth.value * previewScale.value),
+  top: Math.round(img.y / canvasHeight.value * previewScale.value),
+  width: Math.round(img.scaledWidth / canvasWidth.value * previewScale.value),
+  height: Math.round(img.scaledHeight / canvasHeight.value * previewScale.value)
+})
 const canvasContainer = ref(null)
 
 // Selection
