@@ -2,6 +2,11 @@
   <div>
     <h1 class="text-2xl font-bold text-gray-900 mb-6">图像压缩</h1>
     
+    <!-- Status Message -->
+    <div v-if="statusMessage" class="mb-4 p-3 rounded" :class="statusError ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'">
+      {{ statusMessage }}
+    </div>
+    
     <!-- Quality Setting -->
     <div class="bg-white rounded-lg border p-4 mb-4">
       <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -25,9 +30,9 @@
     <!-- Drop Area -->
     <div
       class="border-2 border-dashed rounded-lg p-8 text-center mb-4"
-      :class="isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'"
-      @dragover.prevent="isDragging = true"
-      @dragleave="isDragging = false"
+      :class="isDraggers ? 'border-blue-500 bg-blue-50' : 'border-gray-300'"
+      @dragover.prevent="isDraggers = true"
+      @dragleave="isDraggers = false"
       @drop.prevent="handleDrop"
     >
       <p class="text-gray-500 mb-4">拖拽图片到这里，或点击选择</p>
@@ -75,18 +80,18 @@
           </div>
         </div>
         
-        <!-- Status -->
+        <!-- Action -->
         <div>
           <span v-if="file.status === 'compressing'" class="text-blue-600">
             压缩中...
           </span>
           <span v-else-if="file.status === 'error'" class="text-red-600">
-            失败: {{ file.error }}
+            {{ file.error }}
           </span>
           <button
             v-else-if="!file.compressedUrl"
             @click="compressImage(index)"
-            :disabled="compressing || !workerReady"
+            :disabled="compressing"
             class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
             压缩
@@ -111,36 +116,49 @@ import { v4 as uuidv4 } from 'uuid'
 
 const quality = ref(80)
 const keepMetadata = ref(false)
-const isDragging = ref(false)
+const isDraggers = ref(false)
 const compressing = ref(false)
-const workerReady = ref(false)
+const statusMessage = ref('')
+const statusError = ref(false)
 let worker = null
-const fileCallbacks = new Map()
 
-// Initialize WASM worker
+const files = ref([])
+
+// Initialize worker
 onMounted(() => {
-  worker = new Worker('/assets/workers/compression-worker.js')
+  initWorker()
+})
+
+async function initWorker() {
+  statusMessage.value = '正在初始化压缩引擎...'
+  statusError.value = false
   
-  worker.onmessage = (e) => {
-    if (e.data === 'initFinished') {
-      workerReady.value = true
-      console.log('WASM initialized')
-    } else if (e.data.uuid) {
-      const callback = fileCallbacks.get(e.data.uuid)
-      if (callback) {
-        callback(e.data)
-        fileCallbacks.delete(e.data.uuid)
+  try {
+    worker = new Worker('/assets/workers/compression-worker.js')
+    
+    worker.onmessage = (e) => {
+      console.log('Worker message:', e.data)
+      
+      if (e.data === 'initFinished') {
+        statusMessage.value = '✅ 压缩引擎已就绪'
+      } else if (e.data && e.data.uuid) {
+        handleCompressionResult(e.data)
       }
     }
+    
+    worker.onerror = (err) => {
+      console.error('Worker error:', err)
+      statusMessage.value = '❌ Worker初始化失败: ' + err.message
+      statusError.value = true
+    }
+    
+    worker.postMessage('initLib')
+    
+  } catch (err) {
+    statusMessage.value = '❌ 无法创建Worker: ' + err.message
+    statusError.value = true
   }
-  
-  worker.onerror = (e) => {
-    console.error('Worker error:', e)
-  }
-  
-  // Initialize the library
-  worker.postMessage('initLib')
-})
+}
 
 onUnmounted(() => {
   if (worker) {
@@ -148,10 +166,8 @@ onUnmounted(() => {
   }
 })
 
-const files = ref([])
-
 function handleDrop(e) {
-  isDragging.value = false
+  isDraggers.value = false
   const dropped = Array.from(e.dataTransfer.files)
   addFiles(dropped)
 }
@@ -173,7 +189,6 @@ function addFiles(newFiles) {
       preview: URL.createObjectURL(file),
       compressedUrl: null,
       compressedSize: 0,
-      compressedBlob: null,
       status: 'waiting',
       error: ''
     })
@@ -191,30 +206,30 @@ function compressImage(index) {
   item.status = 'compressing'
   compressing.value = true
   
-  // Store callback for this file
-  fileCallbacks.set(item.id, (result) => {
-    if (result.success) {
-      const blob = new Blob([result.data], { type: 'image/jpeg' })
-      item.compressedSize = result.size
-      item.compressedBlob = blob
-      item.compressedUrl = URL.createObjectURL(blob)
-      item.status = 'done'
-    } else {
-      item.status = 'error'
-      item.error = result.errorString || '压缩失败'
-    }
-    compressing.value = false
-  })
-  
-  // Message: [file, quality, keepMetadata, maxSize, compressionMode, uuid]
-  // compressionMode 0 = QUALITY (based on quality percentage)
+  // Send to worker: [file, quality, keepMetadata, maxSize, compressionMode, uuid]
   worker.postMessage([
     item.file,
     quality.value / 100,
     keepMetadata.value ? 1 : 0,
-    0, // maxSize (0 = no limit)
-    0, // compressionMode.QUALITY
+    0,  // maxSize
+    0,  // compressionMode.QUALITY
     item.id
   ])
+}
+
+function handleCompressionResult(result) {
+  const item = files.value.find(f => f.id === result.uuid)
+  if (!item) return
+  
+  if (result.success) {
+    const blob = new Blob([result.data], { type: 'image/jpeg' })
+    item.compressedSize = result.size
+    item.compressedUrl = URL.createObjectURL(blob)
+    item.status = 'done'
+  } else {
+    item.status = 'error'
+    item.error = result.errorString || '压缩失败'
+  }
+  compressing.value = false
 }
 </script>
