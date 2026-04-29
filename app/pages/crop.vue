@@ -239,6 +239,8 @@ function handleFileSelect(e) {
 }
 
 async function loadImage(file) {
+  if (!import.meta.client) return
+  
   if (currentImage.value?.url) URL.revokeObjectURL(currentImage.value.url)
   if (resultUrl.value) URL.revokeObjectURL(resultUrl.value)
   resultUrl.value = null
@@ -264,7 +266,7 @@ async function loadImage(file) {
   // Calculate scale to fit canvas
   const container = canvasContainer.value
   const maxWidth = container.clientWidth - 32
-  const maxHeight = window.innerHeight * 0.6
+  const maxHeight = 600
   
   scale.value = Math.min(1, maxWidth / img.width, maxHeight / img.height)
   
