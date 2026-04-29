@@ -73,19 +73,19 @@
         <div class="border-t pt-4">
           <div class="flex items-center justify-between mb-3">
             <span class="font-medium text-sm">图片缩放</span>
-            <select v-model.number="resizeMode" class="px-2 py-1 border rounded text-sm">
-              <option :value="0">不缩放</option>
-              <option :value="1">指定尺寸</option>
-              <option :value="2">百分比</option>
-              <option :value="3">短边</option>
-              <option :value="4">长边</option>
-              <option :value="5">固定宽度</option>
-              <option :value="6">固定高度</option>
+            <select v-model="resizeMode" class="px-2 py-1 border rounded text-sm">
+              <option value="none">不缩放</option>
+              <option value="dimensions">指定尺寸</option>
+              <option value="percentage">百分比</option>
+              <option value="short_edge">短边</option>
+              <option value="long_edge">长边</option>
+              <option value="fixed_width">固定宽度</option>
+              <option value="fixed_height">固定高度</option>
             </select>
           </div>
           
           <!-- Dimensions -->
-          <div v-if="resizeMode === 1" class="flex gap-2 items-center">
+          <div v-if="resizeMode === 'dimensions'" class="flex gap-2 items-center">
             <input
               v-model.number="resizeWidth"
               type="number"
@@ -105,7 +105,7 @@
           </div>
           
           <!-- Percentage -->
-          <div v-if="resizeMode === 2">
+          <div v-if="resizeMode === 'percentage'">
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm text-gray-600">缩放比例</span>
               <span class="text-sm text-gray-500">{{ resizePercentage }}%</span>
@@ -120,7 +120,7 @@
           </div>
           
           <!-- Short/Long Edge / Fixed Width/Height -->
-          <div v-if="[3, 4, 5, 6].includes(resizeMode)" class="flex gap-2 items-center">
+          <div v-if="['short_edge', 'long_edge', 'fixed_width', 'fixed_height'].includes(resizeMode)" class="flex gap-2 items-center">
             <input
               v-model.number="resizeEdge"
               type="number"
@@ -319,17 +319,17 @@ const lossless = ref(false)
 const keepMetadata = ref(false)
 const maxSizeValue = ref(500)
 const maxSizeUnit = ref(1000) // 1000 = KB, 1000000 = MB
-const resizeMode = ref(0) // 0=none, 1=dimensions, 2=percentage, 3=shortEdge, 4=longEdge, 5=fixedWidth, 6=fixedHeight
+const resizeMode = ref('none') // 'none', 'dimensions', 'percentage', 'short_edge', 'long_edge', 'fixed_width', 'fixed_height'
 const resizeWidth = ref(0)
 const resizeHeight = ref(0)
 const resizePercentage = ref(100)
 const resizeEdge = ref(0)
 
 const resizeLabels = {
-  3: '短边',
-  4: '长边',
-  5: '宽度',
-  6: '高度'
+  short_edge: '短边',
+  long_edge: '长边',
+  fixed_width: '宽度',
+  fixed_height: '高度'
 }
 
 // Limits
@@ -504,10 +504,10 @@ function compressFile(fileItem) {
     
     // Calculate resize params based on mode
     let rw = 0, rh = 0, rp = resizePercentage.value
-    if (resizeMode.value === 1) { // dimensions
+    if (resizeMode.value === 'dimensions') {
       rw = resizeWidth.value || 0
       rh = resizeHeight.value || 0
-    } else if ([3, 4, 5, 6].includes(resizeMode.value)) { // shortEdge, longEdge, fixedWidth, fixedHeight
+    } else if (['short_edge', 'long_edge', 'fixed_width', 'fixed_height'].includes(resizeMode.value)) {
       rw = resizeEdge.value || 0
     }
     
