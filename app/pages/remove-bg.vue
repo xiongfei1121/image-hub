@@ -221,9 +221,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
-import { pipeline, env } from '@xenova/transformers'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
+
+// 动态导入背景移除库
+let removeBackgroundLib = null
 
 // Settings
 const alphaMatting = ref(false)
@@ -236,7 +238,6 @@ const statusErr = ref(false)
 const previewImage = ref(null)
 
 // Model
-let removeBackground = null
 const modelLoaded = ref(false)
 const loadingModel = ref(false)
 const isProcessing = ref(false)
@@ -246,39 +247,27 @@ const processedImages = computed(() => images.value.filter(i => i.result))
 const waitingImages = computed(() => images.value.filter(i => i.status === 'waiting'))
 
 onMounted(() => {
-  // Auto load model on page load (optional)
-  // loadModel()
+  // Auto load library on page load
+  loadModel()
 })
 
 async function loadModel() {
   if (modelLoaded.value || loadingModel.value) return
   
   loadingModel.value = true
-  statusMsg.value = '正在加载模型，首次使用需下载约 176MB...'
+  statusMsg.value = '正在加载背景移除引擎...'
   
   try {
-    env.allowLocalModels = false
-    env.useBrowserCache = true
-    
-    // 使用 RMBG-1.4 模型，专门用于背景移除
-    removeBackground = await pipeline('image-segmentation', 'briaai/RMBG-1.4', {
-      progress_callback: (progress) => {
-        if (progress.status === 'downloading') {
-          const percent = progress.progress ? Math.round(progress.progress) : 0
-          statusMsg.value = `下载模型中... ${percent}%`
-        } else if (progress.status === 'loading') {
-          statusMsg.value = '加载模型中...'
-        }
-      }
-    })
-    
+    // 动态导入 @imgly/background-removal
+    const module = await import('@imgly/background-removal')
+    removeBackgroundLib = module.removeBackground
     modelLoaded.value = true
-    statusMsg.value = '模型加载完成，可以开始处理图片'
+    statusMsg.value = '引擎加载完成，可以开始处理图片'
     statusErr.value = false
     setTimeout(() => { statusMsg.value = '' }, 3000)
   } catch (e) {
-    console.error('模型加载失败:', e)
-    statusMsg.value = '模型加载失败: ' + e.message
+    console.error('引擎加载失败:', e)
+    statusMsg.value = '引擎加载失败: ' + e.message
     statusErr.value = true
   }
   
@@ -344,106 +333,28 @@ function formatSize(bytes) {
 }
 
 async function processImage(img) {
-  if (!removeBackground) {
+  if (!removeBackgroundLib) {
     await loadModel()
-    if (!removeBackground) return false
+    if (!removeBackgroundLib) return false
   }
   
   img.status = 'processing'
   
   try {
-    // 加载原图
-    const image = new Image()
-    image.crossOrigin = 'anonymous'
-    await new Promise((resolve, reject) => {
-      image.onload = resolve
-      image.onerror = reject
-      image.src = img.original
-    })
-    
-    // 创建 canvas 绘制原图
-    const canvas = document.createElement('canvas')
-    canvas.width = image.width
-    canvas.height = image.height
-    const ctx = canvas.getContext('2d')
-    ctx.drawImage(image, 0, 0)
-    
-    // 获取图像数据
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    
-    // 运行模型获取 mask
-    const output = await removeBackground(image, {
-      return_pixmap: false
-    })
-    
-    // 获取 mask 数据
-    let maskData
-    if (output && output.raw) {
-      maskData = output.raw
-    } else if (output && output.mask) {
-      maskData = output.mask
-    } else if (output && output.data) {
-      maskData = output.data
-    } else if (Array.isArray(output) && output[0]) {
-      // 输出可能是分割结果数组
-      const result = output[0]
-      if (result.mask) {
-        maskData = result.mask
-      } else if (result.data) {
-        maskData = result.data
-      }
-    }
-    
-    // 如果获取到了 mask，应用到图像
-    if (maskData) {
-      // mask 可能是 Canvas、ImageData 或 Uint8Array
-      let maskCanvas
-      if (maskData instanceof HTMLCanvasElement) {
-        maskCanvas = maskData
-      } else {
-        maskCanvas = document.createElement('canvas')
-        maskCanvas.width = canvas.width
-        maskCanvas.height = canvas.height
-        const maskCtx = maskCanvas.getContext('2d')
-        
-        if (maskData instanceof ImageData) {
-          maskCtx.putImageData(maskData, 0, 0)
-        } else {
-          // 假设是像素数据数组
-          const maskImageData = maskCtx.createImageData(canvas.width, canvas.height)
-          // mask 通常是单通道灰度图，需要转换为 RGBA
-          for (let i = 0; i < maskData.length && i < maskImageData.data.length / 4; i++) {
-            const val = maskData[i]
-            maskImageData.data[i * 4] = val
-            maskImageData.data[i * 4 + 1] = val
-            maskImageData.data[i * 4 + 2] = val
-            maskImageData.data[i * 4 + 3] = 255
-          }
-          maskCtx.putImageData(maskImageData, 0, 0)
+    // 使用 @imgly/background-removal 处理图片
+    const blob = await removeBackgroundLib(img.file, {
+      progress: (key, current, total) => {
+        if (key === 'compute:inference') {
+          const percent = Math.round((current / total) * 100)
+          statusMsg.value = `处理中... ${percent}%`
         }
       }
-      
-      // 获取 mask 的像素数据
-      const maskCtx = maskCanvas.getContext('2d')
-      const maskPixels = maskCtx.getImageData(0, 0, canvas.width, canvas.height).data
-      
-      // 应用 mask 到原图的 alpha 通道
-      for (let i = 0; i < imageData.data.length; i += 4) {
-        // 使用 mask 的红色通道作为 alpha
-        imageData.data[i + 3] = maskPixels[i]
-      }
-      
-      ctx.putImageData(imageData, 0, 0)
-    }
-    
-    // 转换为 blob
-    const blob = await new Promise(resolve => {
-      canvas.toBlob(resolve, 'image/png')
     })
     
     img.resultBlob = blob
     img.result = URL.createObjectURL(blob)
     img.status = 'done'
+    statusMsg.value = ''
     return true
   } catch (e) {
     console.error('处理失败:', e)
