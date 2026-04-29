@@ -20,9 +20,10 @@
 <script setup>
 const tools = [
   { id: 1, name: '图像压缩', desc: '减小文件体积，保持画质', icon: '🗜️', path: '/compress' },
-  { id: 2, name: '背景移除', desc: 'AI 自动移除背景', icon: '✂️', path: '/remove-bg' },
-  { id: 3, name: '背景替换', desc: '替换为纯色或图片背景', icon: '🎨', path: '/replace-bg' },
-  { id: 4, name: '证件照换底', desc: '红/白/蓝底一键互换', icon: '📄', path: '/photo-bg' },
-  { id: 5, name: '图像拼接', desc: '多图横向或纵向拼接', icon: '🖼️', path: '/merge' },
+  { id: 2, name: '图像拼接', desc: '多图横向或纵向拼接', icon: '🖼️', path: '/merge' },
+  { id: 3, name: '格式转换', desc: 'JPG/PNG/WebP 格式互转', icon: '🔄', path: '/convert' },
+  { id: 4, name: '图像裁剪', desc: '自定义裁剪区域', icon: '✂️', path: '/crop' },
+  { id: 5, name: '图像调整', desc: '旋转、翻转、调整大小', icon: '📐', path: '/resize' },
+  { id: 6, name: '图像水印', desc: '添加文字或图片水印', icon: '💧', path: '/watermark' },
 ]
 </script>
