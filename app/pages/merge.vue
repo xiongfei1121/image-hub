@@ -159,7 +159,7 @@
           >
             <img
               :src="img.preview"
-              class="w-full h-full object-contain pointer-events-none select-none"
+              class="w-full h-full pointer-events-none select-none"
               style="aspect-ratio: auto"
               draggable="false"
             />
