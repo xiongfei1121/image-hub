@@ -333,8 +333,16 @@ const canvasContainer = ref(null)
 // Selection
 const selectedImage = ref(null)
 
-// Helper function
+// Helper functions
 const round = (n) => Math.round(n)
+const getImgStyle = (img) => ({
+  left: round(img.x / canvasWidth * previewScale) + 'px',
+  top: round(img.y / canvasHeight * previewScale) + 'px'
+})
+const getImgSize = (img) => ({
+  width: round(img.scaledWidth / canvasWidth * previewScale) + 'px',
+  height: round(img.scaledHeight / canvasHeight * previewScale) + 'px'
+})
 
 // Drag state
 const dragging = ref(null)
