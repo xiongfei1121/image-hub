@@ -51,9 +51,27 @@
             <option value="free">自由拖拽</option>
             <option value="horizontal">横向平铺</option>
             <option value="vertical">纵向平铺</option>
-            <option value="grid">网格拼贴</option>
-            <option value="masonry">瀑布流</option>
+            <option value="grid2x2">四宫格</option>
+            <option value="grid3x3">九宫格</option>
           </select>
+        </div>
+        
+        <!-- Snap -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">磁吸对齐</label>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" v-model="snapEnabled" class="w-4 h-4" />
+            <span class="text-xs text-gray-500">启用</span>
+            <input
+              v-model.number="snapThreshold"
+              type="number"
+              min="5"
+              max="50"
+              class="w-16 px-1 py-0.5 border rounded text-xs"
+              :disabled="!snapEnabled"
+            />
+            <span class="text-xs text-gray-500">px</span>
+          </div>
         </div>
         
         <!-- Gap -->
@@ -315,6 +333,8 @@ const rendering = ref(false)
 const resultUrl = ref('')
 const placedImages = ref([])
 const previewScale = ref(800)
+const snapEnabled = ref(true)
+const snapThreshold = ref(10)
 
 // Compute actual dimensions for display
 const getDisplaySize = (img) => ({
@@ -397,16 +417,126 @@ function startImageDrag(e, index) {
   imageStart.value = { x: img.x, y: img.y }
 }
 
+// 磁吸对齐函数
+function snapToGuides(x, y, width, height, currentIndex) {
+  if (!snapEnabled.value) return { x, y }
+  
+  const threshold = snapThreshold.value
+  let snappedX = x
+  let snappedY = y
+  
+  // 收集所有对齐参考线
+  const guides = {
+    left: [0],  // 画布左边缘
+    right: [canvasWidth.value],  // 画布右边缘
+    top: [0],  // 画布上边缘
+    bottom: [canvasHeight.value],  // 画布下边缘
+    centerX: [canvasWidth.value / 2],  // 画布中心
+    centerY: [canvasHeight.value / 2],  // 画布中心
+  }
+  
+  // 添加其他图片的边缘作为参考线
+  placedImages.value.forEach((img, i) => {
+    if (i === currentIndex) return
+    guides.left.push(img.x)
+    guides.right.push(img.x + img.scaledWidth)
+    guides.top.push(img.y)
+    guides.bottom.push(img.y + img.scaledHeight)
+    guides.centerX.push(img.x + img.scaledWidth / 2)
+    guides.centerY.push(img.y + img.scaledHeight / 2)
+  })
+  
+  // 当前图片的各个边和中心
+  const currentLeft = x
+  const currentRight = x + width
+  const currentTop = y
+  const currentBottom = y + height
+  const currentCenterX = x + width / 2
+  const currentCenterY = y + height / 2
+  
+  // 检查左边缘对齐
+  for (const guide of guides.left) {
+    if (Math.abs(currentLeft - guide) < threshold) {
+      snappedX = guide
+      break
+    }
+    if (Math.abs(currentRight - guide) < threshold) {
+      snappedX = guide - width
+      break
+    }
+  }
+  
+  // 检查右边缘对齐
+  for (const guide of guides.right) {
+    if (Math.abs(currentRight - guide) < threshold) {
+      snappedX = guide - width
+      break
+    }
+    if (Math.abs(currentLeft - guide) < threshold) {
+      snappedX = guide
+      break
+    }
+  }
+  
+  // 检查上边缘对齐
+  for (const guide of guides.top) {
+    if (Math.abs(currentTop - guide) < threshold) {
+      snappedY = guide
+      break
+    }
+    if (Math.abs(currentBottom - guide) < threshold) {
+      snappedY = guide - height
+      break
+    }
+  }
+  
+  // 检查下边缘对齐
+  for (const guide of guides.bottom) {
+    if (Math.abs(currentBottom - guide) < threshold) {
+      snappedY = guide - height
+      break
+    }
+    if (Math.abs(currentTop - guide) < threshold) {
+      snappedY = guide
+      break
+    }
+  }
+  
+  // 检查中心线对齐
+  for (const guide of guides.centerX) {
+    if (Math.abs(currentCenterX - guide) < threshold) {
+      snappedX = guide - width / 2
+      break
+    }
+  }
+  
+  for (const guide of guides.centerY) {
+    if (Math.abs(currentCenterY - guide) < threshold) {
+      snappedY = guide - height / 2
+      break
+    }
+  }
+  
+  return { x: snappedX, y: snappedY }
+}
+
 function doCanvasDrag(e) {
   if (!dragging.value) return
   
   const dx = (e.clientX - dragStart.value.x) * canvasWidth.value / previewScale.value
-  const dy = (e.clientY - dragStart.value.y) * canvasHeight.value / previewScale.value
+  const dy = (e.clientY - dragStart.value.y) * canvasWidth.value / previewScale.value
   
   if (dragging.value.type === 'image') {
     const img = placedImages.value[dragging.value.index]
-    img.x = Math.max(0, Math.min(canvasWidth.value - img.scaledWidth, imageStart.value.x + dx))
-    img.y = Math.max(0, Math.min(canvasHeight.value - img.scaledHeight, imageStart.value.y + dy))
+    let newX = imageStart.value.x + dx
+    let newY = imageStart.value.y + dy
+    
+    // 应用磁吸对齐
+    const snapped = snapToGuides(newX, newY, img.scaledWidth, img.scaledHeight, dragging.value.index)
+    
+    // 限制在画布范围内
+    img.x = Math.max(0, Math.min(canvasWidth.value - img.scaledWidth, snapped.x))
+    img.y = Math.max(0, Math.min(canvasHeight.value - img.scaledHeight, snapped.y))
   } else if (dragging.value.type === 'canvas') {
     // Pan canvas - simplified
   }
@@ -501,33 +631,46 @@ function applyLayout() {
     canvasWidth.value = Math.max(...placedImages.value.map(i => i.scaledWidth)) + g * 2
     canvasHeight.value = y
   }
-  else if (layout === 'grid') {
-    // Calculate columns based on canvas width
-    const cols = 3
-    let row = 0, col = 0
+  else if (layout === 'grid2x2') {
+    // 四宫格：2列布局
+    const cols = 2
+    // 计算单元格大小，取最大图片尺寸
+    const maxWidth = Math.max(...placedImages.value.map(i => i.scaledWidth))
+    const maxHeight = Math.max(...placedImages.value.map(i => i.scaledHeight))
+    const cellWidth = maxWidth
+    const cellHeight = maxHeight
+    
     placedImages.value.forEach((img, i) => {
-      img.x = col * (img.scaledWidth + g) + g
-      img.y = row * (img.scaledHeight + g) + g
-      col++
-      if (col >= cols) {
-        col = 0
-        row++
-      }
+      const col = i % cols
+      const row = Math.floor(i / cols)
+      // 图片居中放置在单元格内
+      img.x = col * (cellWidth + g) + g + (cellWidth - img.scaledWidth) / 2
+      img.y = row * (cellHeight + g) + g + (cellHeight - img.scaledHeight) / 2
     })
+    
+    canvasWidth.value = cellWidth * 2 + g * 3
+    canvasHeight.value = cellHeight * Math.ceil(placedImages.value.length / 2) + g * (Math.ceil(placedImages.value.length / 2) + 1)
   }
-  else if (layout === 'masonry') {
-    // Simple masonry - fill shortest column
+  else if (layout === 'grid3x3') {
+    // 九宫格：3列布局
     const cols = 3
-    const colHeights = new Array(cols).fill(g)
+    const maxWidth = Math.max(...placedImages.value.map(i => i.scaledWidth))
+    const maxHeight = Math.max(...placedImages.value.map(i => i.scaledHeight))
+    const cellWidth = maxWidth
+    const cellHeight = maxHeight
+    
     placedImages.value.forEach((img, i) => {
-      const minCol = colHeights.indexOf(Math.min(...colHeights))
-      img.x = minCol * 400 + g // Simplified
-      img.y = colHeights[minCol]
-      colHeights[minCol] += img.scaledHeight + g
+      const col = i % cols
+      const row = Math.floor(i / cols)
+      img.x = col * (cellWidth + g) + g + (cellWidth - img.scaledWidth) / 2
+      img.y = row * (cellHeight + g) + g + (cellHeight - img.scaledHeight) / 2
     })
+    
+    canvasWidth.value = cellWidth * 3 + g * 4
+    canvasHeight.value = cellHeight * Math.ceil(placedImages.value.length / 3) + g * (Math.ceil(placedImages.value.length / 3) + 1)
   }
   
-  if (autoSize.value) {
+  if (autoSize.value && layout !== 'grid2x2' && layout !== 'grid3x3') {
     const maxX = Math.max(...placedImages.value.map(i => i.x + i.scaledWidth))
     const maxY = Math.max(...placedImages.value.map(i => i.y + i.scaledHeight))
     canvasWidth.value = maxX + g
