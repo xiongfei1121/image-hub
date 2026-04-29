@@ -206,6 +206,7 @@ function handleFileSelect(e) {
 }
 
 function addMoreFiles() {
+  if (!import.meta.client) return
   const input = document.createElement('input')
   input.type = 'file'
   input.multiple = true
