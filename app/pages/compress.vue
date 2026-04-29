@@ -86,7 +86,7 @@
           <button
             v-else-if="!file.compressedUrl"
             @click="compressImage(index)"
-            :disabled="compressing"
+            :disabled="compressing || !workerReady"
             class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           >
             压缩
@@ -106,19 +106,46 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 
 const quality = ref(80)
 const keepMetadata = ref(false)
 const isDragging = ref(false)
 const compressing = ref(false)
+const workerReady = ref(false)
 let worker = null
+const fileCallbacks = new Map()
 
 // Initialize WASM worker
 onMounted(() => {
   worker = new Worker('/assets/workers/compression-worker.js')
+  
+  worker.onmessage = (e) => {
+    if (e.data === 'initFinished') {
+      workerReady.value = true
+      console.log('WASM initialized')
+    } else if (e.data.uuid) {
+      const callback = fileCallbacks.get(e.data.uuid)
+      if (callback) {
+        callback(e.data)
+        fileCallbacks.delete(e.data.uuid)
+      }
+    }
+  }
+  
+  worker.onerror = (e) => {
+    console.error('Worker error:', e)
+  }
+  
+  // Initialize the library
   worker.postMessage('initLib')
+})
+
+onUnmounted(() => {
+  if (worker) {
+    worker.terminate()
+  }
 })
 
 const files = ref([])
@@ -164,37 +191,30 @@ function compressImage(index) {
   item.status = 'compressing'
   compressing.value = true
   
+  // Store callback for this file
+  fileCallbacks.set(item.id, (result) => {
+    if (result.success) {
+      const blob = new Blob([result.data], { type: 'image/jpeg' })
+      item.compressedSize = result.size
+      item.compressedBlob = blob
+      item.compressedUrl = URL.createObjectURL(blob)
+      item.status = 'done'
+    } else {
+      item.status = 'error'
+      item.error = result.errorString || '压缩失败'
+    }
+    compressing.value = false
+  })
+  
   // Message: [file, quality, keepMetadata, maxSize, compressionMode, uuid]
+  // compressionMode 0 = QUALITY (based on quality percentage)
   worker.postMessage([
     item.file,
     quality.value / 100,
     keepMetadata.value ? 1 : 0,
-    0,
-    0, // COMPRESSION_MODE.QUALITY
+    0, // maxSize (0 = no limit)
+    0, // compressionMode.QUALITY
     item.id
   ])
-  
-  worker.onmessage = (e) => {
-    const result = e.data
-    if (result.uuid === item.id) {
-      if (result.success) {
-        const blob = new Blob([result.data], { type: 'image/jpeg' })
-        item.compressedSize = result.size
-        item.compressedBlob = blob
-        item.compressedUrl = URL.createObjectURL(blob)
-        item.status = 'done'
-      } else {
-        item.status = 'error'
-        item.error = result.errorString || '压缩失败'
-      }
-      compressing.value = false
-    }
-  }
-  
-  worker.onerror = (e) => {
-    item.status = 'error'
-    item.error = e.message
-    compressing.value = false
-  }
 }
 </script>
