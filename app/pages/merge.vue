@@ -104,7 +104,18 @@
       
       <!-- Canvas Preview -->
       <div class="lg:col-span-2 bg-gray-100 rounded-lg p-4">
-        <div class="flex justify-between items-center mb-2">
+        <div class="flex items-center gap-4 mb-2">
+          <span class="text-sm text-gray-600">画布预览</span>
+          <input
+            v-model.number="previewScale"
+            type="range"
+            min="300"
+            max="1200"
+            step="50"
+            class="w-32"
+          />
+          <span class="text-xs text-gray-500">{{ previewScale }}px</span>
+        </div>
           <span class="text-sm text-gray-600">画布预览 - 拖拽移动 / 滚轮缩放</span>
           <span class="text-xs text-gray-500">
             {{ canvasWidth }} × {{ canvasHeight }} px | {{ placedImages.length }} 张
@@ -307,7 +318,7 @@ const globalScale = ref(100)
 const rendering = ref(false)
 const resultUrl = ref('')
 const placedImages = ref([])
-const previewScale = ref(400)
+const previewScale = ref(800)
 const canvasContainer = ref(null)
 
 // Selection
