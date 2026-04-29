@@ -150,9 +150,9 @@
             :class="{ 'ring-2 ring-blue-500': selectedImage === i }"
             :style="{
               left: (img.x / canvasWidth * previewScale) + 'px',
-              top: (img.y / canvasHeight * previewScale) + 'px',
+              top: (img.y / canvasWidth * previewScale) + 'px',
               width: (img.scaledWidth / canvasWidth * previewScale) + 'px',
-              height: (img.scaledHeight / canvasHeight * previewScale) + 'px'
+              height: (img.scaledHeight / canvasWidth * previewScale) + 'px'
             }"
             @mousedown.stop="startImageDrag($event, i)"
             @click.stop="selectedImage = i"
