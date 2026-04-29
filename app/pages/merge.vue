@@ -423,13 +423,22 @@ function startResize(e, index) {
   const img = placedImages.value[index]
   imageStart.value = { w: img.scaledWidth, h: img.scaledHeight }
   
+  // 保存原始宽高比
+  const aspectRatio = img.scaledWidth / img.scaledHeight
+  
   const onMove = (ev) => {
     if (dragging.value?.type !== 'resize') return
     const dx = (ev.clientX - dragStart.value.x) * canvasWidth.value / previewScale.value
-    const dy = (ev.clientY - dragStart.value.y) * canvasHeight.value / previewScale.value
+    const dy = (ev.clientY - dragStart.value.y) * canvasWidth.value / previewScale.value
+    
+    // 使用对角线距离计算缩放，保持宽高比
+    const diagonal = Math.sqrt(dx * dx + dy * dy)
+    const sign = (dx + dy) > 0 ? 1 : -1
+    const scale = 1 + sign * diagonal / Math.max(imageStart.value.w, imageStart.value.h)
+    
     const img = placedImages.value[index]
-    img.scaledWidth = Math.max(10, imageStart.value.w + dx)
-    img.scaledHeight = Math.max(10, imageStart.value.h + dy)
+    img.scaledWidth = Math.max(10, imageStart.value.w * scale)
+    img.scaledHeight = Math.max(10, imageStart.value.h * scale)
   }
   
   const onUp = () => {
@@ -449,8 +458,11 @@ function startCanvasDrag(e) {
 function updateImageSize() {
   const img = placedImages.value[selectedImage.value]
   if (!img) return
+  
+  // 保持宽高比：根据原始图片比例调整
+  const aspectRatio = img.origWidth / img.origHeight
   img.scaledWidth = Math.max(10, img.scaledWidth)
-  img.scaledHeight = Math.max(10, img.scaledHeight)
+  img.scaledHeight = Math.max(10, Math.round(img.scaledWidth / aspectRatio))
 }
 
 // Wheel zoom
