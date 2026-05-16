@@ -4,7 +4,7 @@
     <section class="gradient-hero py-20 lg:py-32">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 animate-fade-in">
-          图像处理工具集合
+          老熊图像处理工具站
         </h1>
         <p class="text-lg sm:text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-fade-in">
           快速、安全、本地处理 - 所有操作在浏览器中完成，不上传服务器，保护您的隐私
@@ -127,7 +127,7 @@
     <section class="py-16 gradient-primary">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-3xl font-bold text-white mb-4">
-          开始使用 Image Hub
+          开始使用老熊图像处理工具站
         </h2>
         <p class="text-white text-opacity-90 mb-8 max-w-2xl mx-auto">
           无需注册，无需安装，打开浏览器即可使用

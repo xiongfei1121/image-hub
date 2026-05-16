@@ -10,7 +10,7 @@
               <span class="text-white text-xl">🖼️</span>
             </div>
             <span class="text-xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
-              Image Hub
+              老熊图像处理
             </span>
           </NuxtLink>
 
@@ -78,7 +78,7 @@
               <div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
                 <span class="text-white text-xl">🖼️</span>
               </div>
-              <span class="text-xl font-bold text-white">Image Hub</span>
+              <span class="text-xl font-bold text-white">老熊图像处理</span>
             </div>
             <p class="text-sm leading-relaxed max-w-md">
               图像处理工具集合 - 快速、安全、本地处理。所有操作在浏览器中完成，不上传服务器，保护您的隐私。
@@ -107,7 +107,7 @@
 
         <!-- 版权信息 -->
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
-          <p>© 2026 Image Hub. All rights reserved.</p>
+          <p>© 2026 老熊图像处理工具站. All rights reserved.</p>
         </div>
       </div>
     </footer>

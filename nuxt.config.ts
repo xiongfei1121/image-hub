@@ -12,11 +12,11 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      title: 'Image Hub - 图像处理工具集合',
+      title: '老熊图像处理工具站',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: '图像处理工具集合 - 图像压缩、背景移除、背景替换、证件照换底、图像拼接' }
+        { name: 'description', content: '老熊图像处理工具站 - 图像压缩、拼接、格式转换、裁剪、调整、水印等在线工具' }
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
