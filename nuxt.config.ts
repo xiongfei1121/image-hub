@@ -6,6 +6,10 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
   ],
 
+  css: [
+    '~/assets/css/main.css'
+  ],
+
   app: {
     head: {
       title: 'Image Hub - 图像处理工具集合',
