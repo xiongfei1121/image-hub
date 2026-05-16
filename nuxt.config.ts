@@ -19,7 +19,7 @@ export default defineNuxtConfig({
         { name: 'description', content: '老熊图像处理工具站 - 图像压缩、拼接、格式转换、裁剪、调整、水印等在线工具' }
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }
       ]
     }
   },

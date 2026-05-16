@@ -6,9 +6,7 @@
         <div class="flex items-center justify-between h-16">
           <!-- Logo -->
           <NuxtLink to="/" class="flex items-center gap-2 group">
-            <div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-              <span class="text-white text-xl">🖼️</span>
-            </div>
+            <img src="/logo.svg" alt="老熊图像处理" class="w-10 h-10" />
             <span class="text-xl font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
               老熊图像处理
             </span>
@@ -75,9 +73,7 @@
           <!-- Logo & 简介 -->
           <div class="col-span-1 md:col-span-2">
             <div class="flex items-center gap-2 mb-4">
-              <div class="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
-                <span class="text-white text-xl">🖼️</span>
-              </div>
+              <img src="/logo.svg" alt="老熊图像处理" class="w-10 h-10" />
               <span class="text-xl font-bold text-white">老熊图像处理</span>
             </div>
             <p class="text-sm leading-relaxed max-w-md">
