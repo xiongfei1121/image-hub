@@ -1,198 +1,257 @@
 <template>
-  <div>
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">图像水印</h1>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 页面标题 -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">图像水印</h1>
+      <p class="text-gray-600">添加文字或图片水印 - 支持位置、透明度、平铺等设置</p>
+    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Settings Panel -->
-      <div class="bg-white rounded-lg border p-4 space-y-4">
-        <h2 class="font-medium border-b pb-2">水印设置</h2>
-        
-        <!-- Watermark Type -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">水印类型</label>
-          <select v-model="watermarkType" class="w-full px-2 py-1 border rounded">
-            <option value="text">文字水印</option>
-            <option value="image">图片水印</option>
-          </select>
-        </div>
-        
-        <!-- Text Watermark Settings -->
-        <div v-if="watermarkType === 'text'" class="space-y-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">水印文字</label>
-            <input
-              v-model="watermarkText"
-              type="text"
-              placeholder="请输入水印文字"
-              class="w-full px-2 py-1 border rounded"
-            />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">字体大小</label>
-            <input
-              v-model.number="fontSize"
-              type="range"
-              min="12"
-              max="200"
-              class="w-full"
-            />
-            <span class="text-sm text-gray-500">{{ fontSize }}px</span>
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">字体颜色</label>
-            <div class="flex gap-2">
-              <input
-                v-model="fontColor"
-                type="color"
-                class="w-12 h-8 border rounded cursor-pointer"
-              />
-              <input
-                v-model="fontColor"
-                type="text"
-                class="flex-1 px-2 py-1 border rounded text-sm"
-              />
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- 设置面板 -->
+      <div class="lg:col-span-4">
+        <div class="card sticky top-24">
+          <div class="card-body space-y-6">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                </svg>
+                水印设置
+              </h2>
+            </div>
+            
+            <!-- 水印类型 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">水印类型</label>
+              <select v-model="watermarkType" class="select">
+                <option value="text">文字水印</option>
+                <option value="image">图片水印</option>
+              </select>
+            </div>
+            
+            <!-- 文字水印设置 -->
+            <div v-if="watermarkType === 'text'" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">水印文字</label>
+                <input
+                  v-model="watermarkText"
+                  type="text"
+                  placeholder="请输入水印文字"
+                  class="input"
+                />
+              </div>
+              
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-medium text-gray-700">字体大小</label>
+                  <span class="text-sm font-semibold text-primary-600">{{ fontSize }}px</span>
+                </div>
+                <input
+                  v-model.number="fontSize"
+                  type="range"
+                  min="12"
+                  max="200"
+                  class="w-full"
+                />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">字体颜色</label>
+                <div class="flex gap-2">
+                  <input
+                    v-model="fontColor"
+                    type="color"
+                    class="w-12 h-10 border rounded-lg cursor-pointer"
+                  />
+                  <input
+                    v-model="fontColor"
+                    type="text"
+                    class="input flex-1"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-medium text-gray-700">透明度</label>
+                  <span class="text-sm font-semibold text-primary-600">{{ opacity }}%</span>
+                </div>
+                <input
+                  v-model.number="opacity"
+                  type="range"
+                  min="10"
+                  max="100"
+                  class="w-full"
+                />
+              </div>
+              
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-medium text-gray-700">旋转角度</label>
+                  <span class="text-sm font-semibold text-primary-600">{{ rotation }}°</span>
+                </div>
+                <input
+                  v-model.number="rotation"
+                  type="range"
+                  min="-90"
+                  max="90"
+                  class="w-full"
+                />
+              </div>
+            </div>
+            
+            <!-- 图片水印设置 -->
+            <div v-if="watermarkType === 'image'" class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">选择水印图片</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  @change="handleWatermarkImageSelect"
+                  class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer"
+                />
+              </div>
+              
+              <div v-if="watermarkImage">
+                <img :src="watermarkImage" class="w-full max-h-32 object-contain rounded-xl border" />
+              </div>
+              
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-medium text-gray-700">水印大小</label>
+                  <span class="text-sm font-semibold text-primary-600">{{ watermarkScale }}%</span>
+                </div>
+                <input
+                  v-model.number="watermarkScale"
+                  type="range"
+                  min="10"
+                  max="100"
+                  class="w-full"
+                />
+              </div>
+              
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-medium text-gray-700">透明度</label>
+                  <span class="text-sm font-semibold text-primary-600">{{ opacity }}%</span>
+                </div>
+                <input
+                  v-model.number="opacity"
+                  type="range"
+                  min="10"
+                  max="100"
+                  class="w-full"
+                />
+              </div>
+            </div>
+            
+            <!-- 位置选择 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">位置</label>
+              <div class="grid grid-cols-3 gap-1">
+                <button
+                  v-for="pos in positions"
+                  :key="pos.value"
+                  @click="position = pos.value"
+                  class="px-2 py-2 text-xs border rounded-lg transition-all duration-200"
+                  :class="position === pos.value ? 'bg-primary-100 border-primary-500 text-primary-700 font-medium' : 'border-gray-200 hover:bg-gray-50'"
+                >
+                  {{ pos.label }}
+                </button>
+              </div>
+            </div>
+            
+            <!-- 平铺水印 -->
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <span class="text-sm text-gray-700">平铺水印</span>
+              <input type="checkbox" v-model="tiled" class="w-4 h-4" />
+            </div>
+            
+            <!-- 输出格式 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">输出格式</label>
+              <select v-model="outputFormat" class="select">
+                <option value="png">PNG</option>
+                <option value="jpeg">JPG</option>
+                <option value="webp">WebP</option>
+              </select>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="space-y-3 pt-6 border-t">
+              <button
+                @click="applyWatermark"
+                :disabled="!currentImage || isProcessing"
+                class="btn-primary w-full flex items-center justify-center gap-2"
+              >
+                <svg v-if="isProcessing" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isProcessing ? '处理中...' : '添加水印' }}</span>
+              </button>
+              <a
+                v-if="resultUrl"
+                :href="resultUrl"
+                :download="outputName"
+                class="w-full px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>下载图片</span>
+              </a>
+            </div>
+            
+            <!-- 说明 -->
+            <div class="text-xs text-gray-500 bg-gray-50 rounded-lg p-4 space-y-1">
+              <p class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                </svg>
+                支持文字和图片水印
+              </p>
+              <p class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                </svg>
+                可调整位置、透明度、大小
+              </p>
+              <p class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                </svg>
+                支持平铺模式
+              </p>
+              <p class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                所有处理在本地完成
+              </p>
             </div>
           </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">透明度</label>
-            <input
-              v-model.number="opacity"
-              type="range"
-              min="10"
-              max="100"
-              class="w-full"
-            />
-            <span class="text-sm text-gray-500">{{ opacity }}%</span>
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">旋转角度</label>
-            <input
-              v-model.number="rotation"
-              type="range"
-              min="-90"
-              max="90"
-              class="w-full"
-            />
-            <span class="text-sm text-gray-500">{{ rotation }}°</span>
-          </div>
-        </div>
-        
-        <!-- Image Watermark Settings -->
-        <div v-if="watermarkType === 'image'" class="space-y-3">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">选择水印图片</label>
-            <input
-              type="file"
-              accept="image/*"
-              @change="handleWatermarkImageSelect"
-              class="w-full text-sm"
-            />
-          </div>
-          
-          <div v-if="watermarkImage">
-            <img :src="watermarkImage" class="w-full max-h-32 object-contain rounded border" />
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">水印大小</label>
-            <input
-              v-model.number="watermarkScale"
-              type="range"
-              min="10"
-              max="100"
-              class="w-full"
-            />
-            <span class="text-sm text-gray-500">{{ watermarkScale }}%</span>
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">透明度</label>
-            <input
-              v-model.number="opacity"
-              type="range"
-              min="10"
-              max="100"
-              class="w-full"
-            />
-            <span class="text-sm text-gray-500">{{ opacity }}%</span>
-          </div>
-        </div>
-        
-        <!-- Position -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">位置</label>
-          <div class="grid grid-cols-3 gap-1">
-            <button
-              v-for="pos in positions"
-              :key="pos.value"
-              @click="position = pos.value"
-              class="px-2 py-1 text-xs border rounded hover:bg-gray-50"
-              :class="{ 'bg-blue-100 border-blue-500': position === pos.value }"
-            >
-              {{ pos.label }}
-            </button>
-          </div>
-        </div>
-        
-        <!-- Tiled Watermark -->
-        <div class="flex items-center gap-2">
-          <input type="checkbox" v-model="tiled" id="tiled" class="w-4 h-4" />
-          <label for="tiled" class="text-sm text-gray-600">平铺水印</label>
-        </div>
-        
-        <!-- Output Format -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">输出格式</label>
-          <select v-model="outputFormat" class="w-full px-2 py-1 border rounded">
-            <option value="png">PNG</option>
-            <option value="jpeg">JPG</option>
-            <option value="webp">WebP</option>
-          </select>
-        </div>
-        
-        <!-- Actions -->
-        <div class="space-y-2 pt-4 border-t">
-          <button
-            @click="applyWatermark"
-            :disabled="!currentImage || isProcessing"
-            class="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            {{ isProcessing ? '处理中...' : '添加水印' }}
-          </button>
-          <a
-            v-if="resultUrl"
-            :href="resultUrl"
-            :download="outputName"
-            class="block w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-center"
-          >
-            下载图片
-          </a>
-        </div>
-        
-        <!-- Info -->
-        <div class="text-xs text-gray-500 border-t pt-4">
-          <p>• 支持文字和图片水印</p>
-          <p>• 可调整位置、透明度、大小</p>
-          <p>• 支持平铺模式</p>
         </div>
       </div>
       
-      <!-- Preview Area -->
-      <div class="lg:col-span-2">
-        <!-- Upload Area -->
+      <!-- 上传区域和预览 -->
+      <div class="lg:col-span-8">
+        <!-- 上传区域 -->
         <div
           v-if="!currentImage"
-          class="border-2 border-dashed rounded-lg p-12 text-center"
-          :class="isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'"
+          class="upload-area p-16 text-center animate-fade-in"
+          :class="isDragging ? 'border-primary-500 bg-primary-50' : 'border-gray-300'"
           @dragover.prevent="isDragging = true"
           @dragleave="isDragging = false"
           @drop.prevent="handleDrop"
         >
-          <p class="text-gray-500 mb-4">拖拽图片到这里，或点击选择</p>
+          <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary-100 flex items-center justify-center">
+            <svg class="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <p class="text-lg text-gray-700 mb-2">拖拽图片到这里</p>
+          <p class="text-gray-500 mb-6">或点击选择文件</p>
           <input
             type="file"
             accept="image/*"
@@ -202,39 +261,57 @@
           />
           <label
             for="fileInput"
-            class="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer hover:bg-blue-700"
+            class="btn-primary inline-flex items-center gap-2 cursor-pointer"
           >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
             选择图片
           </label>
         </div>
         
-        <!-- Preview -->
-        <div v-else class="space-y-4">
-          <!-- Info -->
-          <div class="bg-gray-50 rounded-lg p-3 flex items-center justify-between">
-            <div class="text-sm">
-              <span class="font-medium">{{ currentImage.name }}</span>
-              <span class="text-gray-500 ml-2">
-                {{ currentImage.width }} × {{ currentImage.height }}
-              </span>
+        <!-- 预览区域 -->
+        <div v-else class="space-y-4 animate-fade-in">
+          <!-- 文件信息 -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <div class="text-sm">
+                    <span class="font-semibold text-gray-900">{{ currentImage.name }}</span>
+                    <span class="text-gray-500 ml-2">
+                      {{ currentImage.width }} × {{ currentImage.height }}
+                    </span>
+                  </div>
+                </div>
+                <button @click="loadNewImage" class="btn-secondary btn-small flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  更换图片
+                </button>
+              </div>
             </div>
-            <button @click="loadNewImage" class="text-sm text-blue-600 hover:underline">
-              更换图片
-            </button>
           </div>
           
-          <!-- Preview Canvas -->
-          <div class="bg-gray-100 rounded-lg p-4 overflow-auto">
-            <canvas
-              ref="previewCanvas"
-              class="max-w-full mx-auto block"
-            ></canvas>
+          <!-- 预览画布 -->
+          <div class="card">
+            <div class="card-body">
+              <div class="bg-gray-100 rounded-xl p-4 overflow-auto">
+                <canvas
+                  ref="previewCanvas"
+                  class="max-w-full mx-auto block"
+                ></canvas>
+              </div>
+            </div>
           </div>
           
-          <!-- Result Preview -->
-          <div v-if="resultUrl" class="border rounded-lg p-4">
-            <p class="text-sm text-gray-500 mb-2">处理结果预览</p>
-            <img :src="resultUrl" class="max-w-full rounded mx-auto" />
+          <!-- 结果预览 -->
+          <div v-if="resultUrl" class="card">
+            <div class="card-body">
+              <p class="text-sm text-gray-500 mb-3 font-medium">处理结果预览</p>
+              <img :src="resultUrl" class="max-w-full rounded-xl mx-auto shadow-md" />
+            </div>
           </div>
         </div>
       </div>

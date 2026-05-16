@@ -1,316 +1,431 @@
 <template>
-  <div>
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">图像拼接</h1>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 页面标题 -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">图像拼接</h1>
+      <p class="text-gray-600">多图自由组合，支持拖拽、缩放、对齐 - 打造完美拼图</p>
+    </div>
     
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Settings Panel -->
-      <div class="bg-white rounded-lg border p-4 space-y-4">
-        <h2 class="font-medium border-b pb-2">设置</h2>
-        
-        <!-- Canvas Size -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">画布尺寸</label>
-          <div class="flex gap-2">
-            <div class="flex-1">
-              <label class="text-xs text-gray-500">宽 px</label>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- 设置面板 -->
+      <div class="lg:col-span-4">
+        <div class="card sticky top-24">
+          <div class="card-body space-y-6">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                </svg>
+                拼接设置
+              </h2>
+            </div>
+            
+            <!-- 画布尺寸 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">画布尺寸</label>
+              <div class="flex gap-2 items-center">
+                <input
+                  v-model.number="canvasWidth"
+                  type="number"
+                  min="100"
+                  max="10000"
+                  placeholder="宽"
+                  class="input flex-1 text-sm"
+                />
+                <span class="text-gray-400">×</span>
+                <input
+                  v-model.number="canvasHeight"
+                  type="number"
+                  min="100"
+                  max="10000"
+                  placeholder="高"
+                  class="input flex-1 text-sm"
+                />
+                <span class="text-xs text-gray-500">px</span>
+              </div>
+            </div>
+            
+            <!-- 背景色 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">背景色</label>
               <input
-                v-model.number="canvasWidth"
-                type="number"
-                min="100"
-                max="10000"
-                class="w-full px-2 py-1 border rounded"
+                v-model="backgroundColor"
+                type="color"
+                class="w-full h-10 border rounded-xl cursor-pointer"
               />
             </div>
-            <div class="flex-1">
-              <label class="text-xs text-gray-500">高 px</label>
+            
+            <!-- 排列方式 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">排列方式</label>
+              <select v-model="defaultLayout" class="select">
+                <option value="free">自由拖拽</option>
+                <option value="horizontal">横向平铺</option>
+                <option value="vertical">纵向平铺</option>
+                <option value="grid2x2">四宫格</option>
+                <option value="grid3x3">九宫格</option>
+              </select>
+            </div>
+            
+            <!-- 磁吸对齐 -->
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-700">磁吸对齐</span>
+                <input type="checkbox" v-model="snapEnabled" class="w-4 h-4" />
+              </div>
+              <div v-if="snapEnabled" class="flex items-center gap-1">
+                <input
+                  v-model.number="snapThreshold"
+                  type="number"
+                  min="5"
+                  max="50"
+                  class="input w-16 text-sm"
+                />
+                <span class="text-xs text-gray-500">px</span>
+              </div>
+            </div>
+            
+            <!-- 间距 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">间距</label>
+              <div class="flex gap-2 items-center">
+                <input
+                  v-model.number="gap"
+                  type="number"
+                  min="0"
+                  max="100"
+                  class="input flex-1 text-sm"
+                />
+                <span class="text-xs text-gray-500">px</span>
+              </div>
+            </div>
+            
+            <!-- 缩放比例 -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-sm font-medium text-gray-700">缩放比例</label>
+                <span class="text-sm font-semibold text-primary-600">{{ globalScale }}%</span>
+              </div>
               <input
-                v-model.number="canvasHeight"
-                type="number"
-                min="100"
-                max="10000"
-                class="w-full px-2 py-1 border rounded"
+                v-model.number="globalScale"
+                type="range"
+                min="10"
+                max="200"
+                class="w-full"
               />
+            </div>
+            
+            <!-- 添加图片 -->
+            <div class="border-t pt-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">添加图片</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                @change="handleFileSelect"
+                class="block w-full text-sm"
+              />
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="space-y-3 pt-6 border-t">
+              <button
+                @click="applyLayout"
+                :disabled="placedImages.length === 0"
+                class="btn-secondary w-full"
+              >
+                应用排列
+              </button>
+            </div>
+            
+            <!-- 快捷键提示 -->
+            <div class="text-xs text-gray-500 bg-gray-50 rounded-lg p-4 space-y-1">
+              <p class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                </svg>
+                方向键移动图片（Shift加速）
+              </p>
+              <p class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                </svg>
+                滚轮缩放选中图片
+              </p>
+              <p class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                </svg>
+                Delete 删除选中图片
+              </p>
             </div>
           </div>
         </div>
-        
-        <!-- Background -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">背景色</label>
-          <input
-            v-model="backgroundColor"
-            type="color"
-            class="w-full h-10 border rounded cursor-pointer"
-          />
-        </div>
-        
-        <!-- Layout -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">排列方式</label>
-          <select v-model="defaultLayout" class="w-full px-2 py-1 border rounded">
-            <option value="free">自由拖拽</option>
-            <option value="horizontal">横向平铺</option>
-            <option value="vertical">纵向平铺</option>
-            <option value="grid2x2">四宫格</option>
-            <option value="grid3x3">九宫格</option>
-          </select>
-        </div>
-        
-        <!-- Snap -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">磁吸对齐</label>
-          <div class="flex items-center gap-2">
-            <input type="checkbox" v-model="snapEnabled" class="w-4 h-4" />
-            <span class="text-xs text-gray-500">启用</span>
-            <input
-              v-model.number="snapThreshold"
-              type="number"
-              min="5"
-              max="50"
-              class="w-16 px-1 py-0.5 border rounded text-xs"
-              :disabled="!snapEnabled"
-            />
-            <span class="text-xs text-gray-500">px</span>
+      </div>
+      
+      <!-- 画布预览区域 -->
+      <div class="lg:col-span-8">
+        <!-- 上传区域 -->
+        <div
+          v-if="placedImages.length === 0"
+          class="upload-area p-16 text-center animate-fade-in"
+          :class="isDragging ? 'border-primary-500 bg-primary-50' : 'border-gray-300'"
+          @dragover.prevent="isDragging = true"
+          @dragleave="isDragging = false"
+          @drop.prevent="handleDrop"
+        >
+          <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary-100 flex items-center justify-center">
+            <svg class="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
           </div>
-        </div>
-        
-        <!-- Gap -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">间距 px</label>
-          <input
-            v-model.number="gap"
-            type="number"
-            min="0"
-            max="100"
-            class="w-full px-2 py-1 border rounded"
-          />
-        </div>
-        
-        <!-- Scale -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">缩放比例 %</label>
-          <input
-            v-model.number="globalScale"
-            type="range"
-            min="10"
-            max="200"
-            class="w-full"
-          />
-          <span class="text-xs text-gray-500">{{ globalScale }}%</span>
-        </div>
-        
-        <!-- Add Images -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">添加图片</label>
+          <p class="text-lg text-gray-700 mb-2">拖拽图片到这里</p>
+          <p class="text-gray-500 mb-6">或点击选择文件</p>
           <input
             type="file"
             accept="image/*"
             multiple
             @change="handleFileSelect"
-            class="block w-full text-sm"
+            class="hidden"
+            id="fileInput"
           />
+          <label
+            for="fileInput"
+            class="btn-primary inline-flex items-center gap-2 cursor-pointer"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            选择图片
+          </label>
         </div>
         
-        <button
-          @click="applyLayout"
-          :disabled="placedImages.length === 0"
-          class="w-full px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50"
-        >
-          应用排列
-        </button>
-      </div>
-      
-      <!-- Canvas Preview -->
-      <div class="lg:col-span-2 bg-gray-100 rounded-lg p-4">
-        <div class="flex items-center gap-4 mb-2">
-          <span class="text-sm text-gray-600">画布预览</span>
-          <input
-            v-model.number="previewScale"
-            type="range"
-            min="300"
-            max="1200"
-            step="50"
-            class="w-32"
-          />
-          <span class="text-xs text-gray-500">{{ previewScale }}px</span>
-        </div>
-
-        <!-- Canvas Container -->
-        <div
-          ref="canvasContainer"
-          class="relative bg-white rounded border overflow-hidden"
-          :style="{
-            width: previewScale + 'px',
-            height: (previewScale * canvasHeight / canvasWidth) + 'px',
-            backgroundColor: backgroundColor
-          }"
-          @wheel.prevent="handleWheel"
-          @mousedown="startCanvasDrag"
-          @mousemove="doCanvasDrag"
-          @mouseup="endCanvasDrag"
-          @mouseleave="endCanvasDrag"
-        >
-          <!-- Grid lines -->
-          <div
-            v-if="showGrid"
-            class="absolute inset-0 pointer-events-none"
-            :style="{
-              backgroundImage: 'linear-gradient(#ccc 1px, transparent 1px), linear-gradient(90deg, #ccc 1px, transparent 1px)',
-              backgroundSize: '20px 20px'
-            }"
-          />
-          
-          <!-- Placed images -->
-          <div
-            v-for="(img, i) in placedImages"
-            :key="img.id"
-            class="absolute cursor-move group"
-            :class="{ 'ring-2 ring-blue-500': selectedImage === i }"
-            :style="{
-              left: (img.x / canvasWidth * previewScale) + 'px',
-              top: (img.y / canvasWidth * previewScale) + 'px',
-              width: (img.scaledWidth / canvasWidth * previewScale) + 'px',
-              height: (img.scaledHeight / canvasWidth * previewScale) + 'px'
-            }"
-            @mousedown.stop="startImageDrag($event, i)"
-            @click.stop="selectedImage = i"
-          >
-            <img
-              :src="img.preview"
-              class="w-full h-full pointer-events-none select-none"
-              style="aspect-ratio: auto"
-              draggable="false"
-            />
-            <!-- Resize handle -->
-            <div
-              v-if="selectedImage === i"
-              class="absolute bottom-0 right-0 w-3 h-3 bg-blue-500 rounded-tr cursor-se-resize"
-              @mousedown.stop="startResize($event, i)"
-            />
-          </div>
-          
-          <!-- Empty state -->
-          <div
-            v-if="placedImages.length === 0"
-            class="absolute inset-0 flex items-center justify-center text-gray-400"
-          >
-            <p>添加图片后拖拽移动位置</p>
-          </div>
-        </div>
-        
-        <!-- Image List -->
-        <div class="mt-4 space-y-2">
-          <div class="flex gap-2">
-            <button
-              @click="showGrid = !showGrid"
-              class="px-3 py-1 text-sm rounded"
-              :class="showGrid ? 'bg-blue-500 text-white' : 'bg-gray-200'"
-            >
-              网格 {{ showGrid ? '✓' : '' }}
-            </button>
-            <button
-              @click="autoSize = !autoSize"
-              class="px-3 py-1 text-sm rounded"
-              :class="autoSize ? 'bg-blue-500 text-white' : 'bg-gray-200'"
-            >
-              自动适应 {{ autoSize ? '✓' : '' }}
-            </button>
-          </div>
-          
-          <div class="flex flex-wrap gap-2 max-h-32 overflow-y-auto p-2 bg-white rounded border">
-            <div
-              v-for="(img, i) in placedImages"
-              :key="img.id"
-              class="relative group flex items-center gap-2 p-1 bg-gray-50 rounded cursor-pointer"
-              :class="{ 'ring-2 ring-blue-500': selectedImage === i }"
-              @click="selectedImage = i"
-            >
-              <img :src="img.preview" class="w-12 h-12 object-cover rounded" />
-              <div class="text-xs">
-                <p class="truncate w-20">{{ img.name }}</p>
-                <p class="text-gray-500">{{ round(img.scaledWidth) }}×{{ round(img.scaledHeight) }}</p>
+        <!-- 画布预览 -->
+        <div v-else class="space-y-4 animate-fade-in">
+          <!-- 预览控制 -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                  <span class="text-sm font-medium text-gray-700">画布预览</span>
+                  <div class="flex items-center gap-2">
+                    <input
+                      v-model.number="previewScale"
+                      type="range"
+                      min="300"
+                      max="1200"
+                      step="50"
+                      class="w-32"
+                    />
+                    <span class="text-xs text-gray-500 w-12">{{ previewScale }}px</span>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button
+                    @click="showGrid = !showGrid"
+                    class="btn-secondary btn-small"
+                    :class="showGrid ? 'bg-primary-50 text-primary-700 border-primary-200' : ''"
+                  >
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                    网格
+                  </button>
+                  <button
+                    @click="autoSize = !autoSize"
+                    class="btn-secondary btn-small"
+                    :class="autoSize ? 'bg-primary-50 text-primary-700 border-primary-200' : ''"
+                  >
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    自动适应
+                  </button>
+                </div>
               </div>
-              <button
-                @click.stop="removeImage(i)"
-                class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100"
+            </div>
+          </div>
+          
+          <!-- 画布容器 -->
+          <div class="card overflow-hidden">
+            <div class="p-4 bg-gray-50 overflow-auto max-h-[600px]">
+              <div
+                ref="canvasContainer"
+                class="relative bg-white rounded-xl shadow-sm overflow-hidden mx-auto"
+                :style="{
+                  width: previewScale + 'px',
+                  height: (previewScale * canvasHeight / canvasWidth) + 'px',
+                  backgroundColor: backgroundColor
+                }"
+                @wheel.prevent="handleWheel"
+                @mousedown="startCanvasDrag"
+                @mousemove="doCanvasDrag"
+                @mouseup="endCanvasDrag"
+                @mouseleave="endCanvasDrag"
               >
-                ✕
-              </button>
+                <!-- Grid lines -->
+                <div
+                  v-if="showGrid"
+                  class="absolute inset-0 pointer-events-none"
+                  :style="{
+                    backgroundImage: 'linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px)',
+                    backgroundSize: '20px 20px'
+                  }"
+                />
+                
+                <!-- Placed images -->
+                <div
+                  v-for="(img, i) in placedImages"
+                  :key="img.id"
+                  class="absolute cursor-move group"
+                  :class="{ 'ring-2 ring-primary-500 ring-offset-2': selectedImage === i }"
+                  :style="{
+                    left: (img.x / canvasWidth * previewScale) + 'px',
+                    top: (img.y / canvasWidth * previewScale) + 'px',
+                    width: (img.scaledWidth / canvasWidth * previewScale) + 'px',
+                    height: (img.scaledHeight / canvasWidth * previewScale) + 'px'
+                  }"
+                  @mousedown.stop="startImageDrag($event, i)"
+                  @click.stop="selectedImage = i"
+                >
+                  <img
+                    :src="img.preview"
+                    class="w-full h-full pointer-events-none select-none"
+                    style="aspect-ratio: auto"
+                    draggable="false"
+                  />
+                  <!-- Resize handle -->
+                  <div
+                    v-if="selectedImage === i"
+                    class="absolute bottom-0 right-0 w-3 h-3 bg-primary-500 rounded-tr cursor-se-resize"
+                    @mousedown.stop="startResize($event, i)"
+                  />
+                </div>
+                
+                <!-- Empty state -->
+                <div
+                  v-if="placedImages.length === 0"
+                  class="absolute inset-0 flex items-center justify-center text-gray-400"
+                >
+                  <p>添加图片后拖拽移动位置</p>
+                </div>
+              </div>
             </div>
-            
-            <div
-              v-if="placedImages.length === 0"
-              class="text-gray-400 text-sm p-4"
+          </div>
+          
+          <!-- 图片列表 -->
+          <div class="card">
+            <div class="card-body">
+              <div class="flex items-center justify-between mb-4">
+                <span class="text-sm font-semibold text-gray-900">{{ placedImages.length }} 张图片</span>
+                <button @click="addMoreImages" class="btn-secondary btn-small flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  添加更多
+                </button>
+              </div>
+              
+              <div class="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                <div
+                  v-for="(img, i) in placedImages"
+                  :key="img.id"
+                  class="file-item cursor-pointer"
+                  :class="{ 'ring-2 ring-primary-500': selectedImage === i }"
+                  @click="selectedImage = i"
+                >
+                  <img :src="img.preview" class="w-12 h-12 object-cover rounded-lg" />
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">{{ img.name }}</p>
+                    <p class="text-xs text-gray-500">{{ round(img.scaledWidth) }}×{{ round(img.scaledHeight) }}</p>
+                  </div>
+                  <button
+                    @click.stop="removeImage(i)"
+                    class="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 选中图片控制 -->
+          <div v-if="selectedImage !== null && placedImages[selectedImage]" class="card">
+            <div class="card-body">
+              <p class="text-sm font-semibold text-gray-900 mb-3">
+                当前: {{ placedImages[selectedImage].name }}
+              </p>
+              <div class="grid grid-cols-4 gap-3">
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">宽</label>
+                  <input
+                    v-model.number="placedImages[selectedImage].scaledWidth"
+                    type="number"
+                    class="input text-sm"
+                    @change="updateImageSize"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">高</label>
+                  <input
+                    v-model.number="placedImages[selectedImage].scaledHeight"
+                    type="number"
+                    class="input text-sm"
+                    @change="updateImageSize"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">X</label>
+                  <input
+                    v-model.number="placedImages[selectedImage].x"
+                    type="number"
+                    class="input text-sm"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-500 mb-1">Y</label>
+                  <input
+                    v-model.number="placedImages[selectedImage].y"
+                    type="number"
+                    class="input text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 操作按钮 -->
+          <div class="flex gap-3">
+            <button
+              @click="renderCanvas"
+              :disabled="placedImages.length === 0 || rendering"
+              class="btn-primary flex-1 flex items-center justify-center gap-2"
             >
-              点击上方"添加图片"按钮选择图片
+              <svg v-if="rendering" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>{{ rendering ? '渲染中...' : '渲染并下载' }}</span>
+            </button>
+            <button
+              @click="clearAll"
+              :disabled="placedImages.length === 0"
+              class="btn-secondary"
+            >
+              清空
+            </button>
+          </div>
+          
+          <!-- 结果预览 -->
+          <div v-if="resultUrl" class="card">
+            <div class="card-body">
+              <p class="text-sm font-semibold text-gray-900 mb-3">渲染结果</p>
+              <img :src="resultUrl" class="max-h-64 rounded-xl shadow-md mx-auto" />
             </div>
           </div>
-        </div>
-        
-        <!-- Selected Image Controls -->
-        <div v-if="selectedImage !== null && placedImages[selectedImage]" class="mt-4 p-3 bg-white rounded border">
-          <p class="text-sm font-medium mb-2">
-            当前: {{ placedImages[selectedImage].name }}
-          </p>
-          <div class="flex gap-4 text-sm">
-            <label>
-              宽
-              <input
-                v-model.number="placedImages[selectedImage].scaledWidth"
-                type="number"
-                class="w-20 px-1 py-0.5 border rounded"
-                @change="updateImageSize"
-              />
-            </label>
-            <label>
-              高
-              <input
-                v-model.number="placedImages[selectedImage].scaledHeight"
-                type="number"
-                class="w-20 px-1 py-0.5 border rounded"
-                @change="updateImageSize"
-              />
-            </label>
-            <label>
-              X
-              <input
-                v-model.number="placedImages[selectedImage].x"
-                type="number"
-                class="w-20 px-1 py-0.5 border rounded"
-              />
-            </label>
-            <label>
-              Y
-              <input
-                v-model.number="placedImages[selectedImage].y"
-                type="number"
-                class="w-20 px-1 py-0.5 border rounded"
-              />
-            </label>
-          </div>
-        </div>
-        
-        <!-- Actions -->
-        <div class="mt-4 flex gap-2">
-          <button
-            @click="renderCanvas"
-            :disabled="placedImages.length === 0 || rendering"
-            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            {{ rendering ? '渲染中...' : '渲染并下载' }}
-          </button>
-          <button
-            @click="clearAll"
-            :disabled="placedImages.length === 0"
-            class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
-          >
-            清空
-          </button>
-        </div>
-        
-        <!-- Result -->
-        <div v-if="resultUrl" class="mt-4">
-          <img :src="resultUrl" class="max-h-64 rounded border" />
         </div>
       </div>
     </div>
@@ -335,6 +450,7 @@ const placedImages = ref([])
 const previewScale = ref(800)
 const snapEnabled = ref(true)
 const snapThreshold = ref(10)
+const isDragging = ref(false)
 
 // Compute actual dimensions for display
 const getDisplaySize = (img) => ({
@@ -366,7 +482,25 @@ const imageStart = ref({ x: 0, y: 0, w: 0, h: 0 })
 
 function handleFileSelect(e) {
   const files = Array.from(e.target.files)
-  
+  addFiles(files)
+  e.target.value = ''
+}
+
+function handleDrop(e) {
+  isDragging.value = false
+  addFiles(Array.from(e.dataTransfer.files))
+}
+
+function addMoreImages() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.multiple = true
+  input.accept = 'image/*'
+  input.onchange = (e) => addFiles(Array.from(e.target.files))
+  input.click()
+}
+
+function addFiles(files) {
   files.forEach(async (file) => {
     if (!file.type.startsWith('image/')) return
     
