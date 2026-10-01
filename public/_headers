@@ -1,0 +1,48 @@
+# Cloudflare reads this file and applies the headers to matching routes.
+#
+# Cross-origin isolation is what unlocks multi-threaded WASM inference
+# (SharedArrayBuffer, shared via crossOriginIsolated). Without it, browsers
+# without WebGPU fall back to single-threaded WASM, which is several times
+# slower.
+#
+# `require-corp` means every no-cors subresource (img, script, link, video…)
+# must be same-origin or carry an explicit CORP header.
+#
+# One cross-origin dependency exists: the background-removal models are pulled
+# from huggingface.co with `fetch()`. That is deliberate and safe here — COEP
+# does not apply to CORS-mode fetches, and HuggingFace answers the preflight by
+# echoing an allow-origin for our domain. Their responses carry no CORP header,
+# so this would break the moment those weights were loaded through an <img> or
+# <script> tag instead. Fetch them, never embed them.
+#
+# (The upscaling weights and the ONNX Runtime itself stay same-origin under
+# /models/ and /ort/, so they are unaffected either way.)
+
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+
+/models/*
+  Cache-Control: public, max-age=604800
+
+/ort/*
+  Cache-Control: public, max-age=604800
+
+# The docs site is hand-written static HTML with one shared stylesheet.
+#
+# HTML and CSS MUST share the same short TTL. They ship together and are edited
+# together, so if the stylesheet outlives the markup you get a window where new
+# HTML meets old CSS — that mismatch is not cosmetic: any class the new markup
+# relies on for sizing (e.g. the sidebar icon row) simply has no rule, and the
+# SVGs balloon to their default 300x150 and get clipped by the sidebar.
+#
+# Do NOT raise the CSS TTL to "save bandwidth" unless the filename is
+# content-hashed — it is not, and it is edited alongside the HTML.
+/docs/*.html
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/en/docs/*.html
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/docs/*.css
+  Cache-Control: public, max-age=3600, must-revalidate

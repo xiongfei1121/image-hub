@@ -1,0 +1,40 @@
+{
+  "name": "image-tools",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "浏览器端图片工具箱：压缩（libcaesium WASM 引擎）+ AI 超分辨率放大（ONNX Runtime WebGPU/WASM）+ AI 抠图，纯静态部署",
+  "scripts": {
+    "prepare:ort": "node scripts/prepare-ort.mjs",
+    "dev": "npm run prepare:ort && vite",
+    "build": "npm run prepare:ort && npm run typecheck && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name=image-tools"
+  },
+  "dependencies": {
+    "jszip": "^3.10.2",
+    "lucide-react": "^1.47.0",
+    "onnxruntime-web": "^1.30.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260921.1",
+    "@eslint/js": "^9.39.5",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.4.11",
+    "globals": "^17.12.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.0",
+    "vite": "^8.3.0",
+    "wrangler": "^4.135.0"
+  }
+}
