@@ -151,7 +151,7 @@ export function App() {
         <footer className="border-t border-neutral-200 pt-6 text-center text-sm text-neutral-400 dark:border-neutral-800 dark:text-neutral-600">
           <span>{t.footerBefore}</span>
           <a
-            href="https://blog.1day.vip/"
+            href="https://w.ztt.qzz.io/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 hover:underline dark:text-blue-400"
