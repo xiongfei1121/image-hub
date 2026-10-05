@@ -19,12 +19,12 @@ export const CUTOUT_MODELS: CutoutModelSpec[] = [
     /** 有 fp16 WebGPU 能力时用半精度，否则 fp32。见 resolveCutoutModel。 */
     variants: {
       webgpu: {
-        url: 'https://openlist.081213.xyz:8899/d/koofr%E7%BD%91%E7%9B%98/model_fp16.onnx',
+        url: 'https://openlist.081213.xyz:8899/d/%E7%82%B9%E6%AD%A4%E8%BF%9B%E5%85%A5/%E5%B8%B8%E7%94%A8%E8%B5%84%E6%BA%90/AI%E6%A8%A1%E5%9E%8B/model_fp16.onnx',
         approxBytes: 98_484_532,
         dtype: 'fp16',
       },
       wasm: {
-        url: 'https://openlist.081213.xyz:8899/d/koofr%E7%BD%91%E7%9B%98/birefnet-lite-512%20(FP32).onnx',
+        url: 'https://openlist.081213.xyz:8899/d/%E7%82%B9%E6%AD%A4%E8%BF%9B%E5%85%A5/%E5%B8%B8%E7%94%A8%E8%B5%84%E6%BA%90/AI%E6%A8%A1%E5%9E%8B/model_fp32.onnx',
         approxBytes: 191_877_254,
         dtype: 'fp32',
       },
@@ -48,12 +48,12 @@ export const CUTOUT_MODELS: CutoutModelSpec[] = [
     label: 'BiRefNet',
     variants: {
       webgpu: {
-        url: 'https://openlist.081213.xyz:8899/d/koofr%E7%BD%91%E7%9B%98/birefnet-512.onnx',
+        url: 'https://openlist.081213.xyz:8899/d/%E7%82%B9%E6%AD%A4%E8%BF%9B%E5%85%A5/%E5%B8%B8%E7%94%A8%E8%B5%84%E6%BA%90/AI%E6%A8%A1%E5%9E%8B/birefnet-512.onnx',
         approxBytes: 473_435_223,
         dtype: 'fp16',
       },
       wasm: {
-        url: 'https://openlist.081213.xyz:8899/d/koofr%E7%BD%91%E7%9B%98/birefnet-512.onnx',
+        url: 'https://openlist.081213.xyz:8899/d/%E7%82%B9%E6%AD%A4%E8%BF%9B%E5%85%A5/%E5%B8%B8%E7%94%A8%E8%B5%84%E6%BA%90/AI%E6%A8%A1%E5%9E%8B/birefnet-512.onnx',
         approxBytes: 473_435_223,
         dtype: 'fp16',
       },
