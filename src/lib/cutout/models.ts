@@ -1,6 +1,14 @@
 import type { CutoutModelSpec } from '../types'
 
 /**
+ * BiRefNet 的官方预处理就两组常量：ImageNet 均值方差 + 缩放到 [0,1]。
+ * 与大多数图不同，它**不做** letterbox —— 官方实现直接 resize 到固定正方形，
+ * 长宽比失真由网络自己吸收，还原时再拉回原尺寸。
+ */
+export const IMAGE_MEAN = [0.485, 0.456, 0.406] as const
+export const IMAGE_STD = [0.229, 0.224, 0.225] as const
+
+/**
  * 抠图模型注册表。
  *
  * 与放大模型不同，BiRefNet 的权重不随仓库发布 —— 单个体积在 94 MB 到 452 MB
@@ -29,7 +37,14 @@ export const CUTOUT_MODELS: CutoutModelSpec[] = [
         dtype: 'fp32',
       },
     },
-    inputSize: 512,
+    /** 固定 512×512 正方形输入 —— 官方导出就是 512，不做短边缩放。 */
+    preprocess: {
+      mode: 'square',
+      edge: 512,
+      divisibility: 1,
+      mean: IMAGE_MEAN,
+      std: IMAGE_STD,
+    },
     inputName: 'input_image',
     /**
      * 图的输出名。实测（onnxruntime-web 1.30.0 加载该 revision 的 fp16 权重）
@@ -42,6 +57,7 @@ export const CUTOUT_MODELS: CutoutModelSpec[] = [
      */
     outputIsLogits: true,
     license: 'MIT',
+    scope: 'general',
   },
   {
     id: 'birefnet-512',
@@ -58,12 +74,19 @@ export const CUTOUT_MODELS: CutoutModelSpec[] = [
         dtype: 'fp16',
       },
     },
-    inputSize: 512,
+    preprocess: {
+      mode: 'square',
+      edge: 512,
+      divisibility: 1,
+      mean: IMAGE_MEAN,
+      std: IMAGE_STD,
+    },
     inputName: 'input_image',
     /** 与 lite 版同为 `output_image`，只有这一个输出。 */
     outputName: 'output_image',
     outputIsLogits: true,
     license: 'MIT',
+    scope: 'general',
   },
 ]
 
@@ -72,11 +95,3 @@ export const DEFAULT_CUTOUT_MODEL_ID = CUTOUT_MODELS[0]!.id
 export function getCutoutModel(id: string): CutoutModelSpec {
   return CUTOUT_MODELS.find((model) => model.id === id) ?? CUTOUT_MODELS[0]!
 }
-
-/**
- * BiRefNet 的官方预处理就两组常量：ImageNet 均值方差 + 缩放到 [0,1]。
- * 与大多数图不同，它**不做** letterbox —— 官方实现直接 resize 到 512×512，
- * 长宽比失真由网络自己吸收，还原时再拉回原尺寸。
- */
-export const IMAGE_MEAN = [0.485, 0.456, 0.406] as const
-export const IMAGE_STD = [0.229, 0.224, 0.225] as const

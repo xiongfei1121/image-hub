@@ -113,7 +113,12 @@ export function CutoutWorkbench() {
               <span key={note.kind}>
                 {note.kind === 'wasm-fallback' && t.upscaleNoteWasmFallback}
                 {note.kind === 'mask-upscaled' &&
-                  t.cutoutNoteMaskUpscaled(note.maskEdge, note.outputEdge)}
+                  t.cutoutNoteMaskUpscaled(
+                    note.maskWidth,
+                    note.maskHeight,
+                    note.imageWidth,
+                    note.imageHeight,
+                  )}
               </span>
             ))}
           </div>

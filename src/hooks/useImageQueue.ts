@@ -123,12 +123,10 @@ export function useImageQueue(
           rw = resizeWidth || 0;
           rh = resizeHeight || 0;
         } else if (
-          [
-            RESIZE_MODE.SHORT_EDGE,
-            RESIZE_MODE.LONG_EDGE,
-            RESIZE_MODE.FIXED_WIDTH,
-            RESIZE_MODE.FIXED_HEIGHT,
-          ].includes(resizeMode)
+          resizeMode === RESIZE_MODE.SHORT_EDGE ||
+          resizeMode === RESIZE_MODE.LONG_EDGE ||
+          resizeMode === RESIZE_MODE.FIXED_WIDTH ||
+          resizeMode === RESIZE_MODE.FIXED_HEIGHT
         ) {
           rw = resizeEdge || 0;
         }
@@ -173,8 +171,10 @@ export function useImageQueue(
           throw new Error(result.errorString || 'Compression failed');
         }
 
-        // libcaesium 保持原格式，输出 MIME 沿用源文件
-        const blob = new Blob([result.data], { type: image.file.type || 'image/jpeg' });
+        // libcaesium 保持原格式，输出 MIME 沿用源文件。
+        // worker 返回的 buffer 可能是 SharedArrayBuffer，直接交给 Blob 在
+        // TS 6 的 BlobPart 约束下类型不匹配，这里拷贝到新的 ArrayBuffer 上。
+        const blob = new Blob([new Uint8Array(result.data)], { type: image.file.type || 'image/jpeg' });
         const preview = URL.createObjectURL(blob);
         const outputType = getExtension(image.file);
 

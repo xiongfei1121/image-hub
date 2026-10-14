@@ -201,8 +201,12 @@ export const zhCN: Translation = {
   cutoutDownloadOnce: '只有首次需要下载，之后这个文件会走本地缓存。',
 
   // 结果附注
-  cutoutNoteMaskUpscaled: (maskEdge: number, outputEdge: number) =>
-    `遮罩按 ${maskEdge}px 计算，放大到 ${outputEdge}px`,
+cutoutNoteMaskUpscaled: (
+    maskWidth: number,
+    maskHeight: number,
+    imageWidth: number,
+    imageHeight: number,
+  ) => `遮罩以 ${maskWidth}×${maskHeight} 计算，放大回 ${imageWidth}×${imageHeight}`,
 
   // 错误
   cutoutErrorDecode: '无法读取这张图片，请换一张试试',
@@ -353,4 +357,199 @@ export const zhCN: Translation = {
   wmPosBottomLeft: '左下',
   wmPosBottomCenter: '下中',
   wmPosBottomRight: '右下',
+
+  // ---- point-cutout & crop-rotate (synced from upstream d59e440) ----
+
+  segmentTool: '点选抠图',
+
+  segmentToolDesc: '指哪抠哪',
+
+  // 压缩选项
+
+  errorModelFetch: '模型权重下载失败：官方源和国内镜像都没连上。请检查网络或代理后重试。',
+
+  editTool: '裁剪旋转',
+
+  editToolDesc: '裁剪与切片',
+
+  editDropTitle: '将图片拖拽到此处，或点击选择',
+
+  editDropSubtitle: '支持 PNG / JPEG / WebP / AVIF · 纯本机运算，不需要下载模型',
+
+  editFirstRunHint: '这个工具完全在本机运算：无需下载模型，图片也不会离开这台设备。',
+
+  editOriginal: '原图',
+
+  editPreview: '预览',
+
+  editReplace: '换一张图',
+
+  editDownload: '下载图片',
+
+  editOutputSize: (width: number, height: number) => `输出 ${width} × ${height} px`,
+
+  editSectionCrop: '裁剪',
+
+  editCropReset: '重置裁剪',
+
+  editSectionRotate: '旋转',
+
+  editRotateValue: (deg: number) => `${deg}°`,
+
+  editRotateStraighten: '自动拉正',
+
+  editRotateStraightening: '分析中…',
+
+  editStraightenDone: (deg: number) => `已校正 ${deg}°，还可以继续微调`,
+
+  editStraightenFlat: '这张图本来就是正的',
+
+  editStraightenFailed: '没找到可用于对齐的直线，请手动调整',
+
+  editSectionFlip: '翻转',
+
+  editFlipHorizontal: '水平翻转',
+
+  editFlipVertical: '垂直翻转',
+
+  editResetAll: '重置全部调整',
+
+  editSectionSlice: '切片',
+
+  editSliceCols: '列数',
+
+  editSliceRows: '行数',
+
+  editSliceGap: '间距',
+
+  editSlicePreview: '切片预览',
+
+  editSlicePreviewPiece: (width: number, height: number) => `每块 ${width}×${height}`,
+
+  editSliceCount: (count: number) => `共 ${count} 张`,
+
+  editSliceDownload: '下载切片（ZIP）',
+
+  editSlicePacking: '打包中…',
+
+  editCropRatios: {
+    free: '自由',
+    '1:1': '1:1',
+    '4:3': '4:3',
+    '3:4': '3:4',
+    '16:9': '16:9',
+    '9:16': '9:16',
+  } as Record<string, string>,
+
+  // ── 点选抠图（SAM） ──────────────────────────────────────
+
+  segmentDropTitle: '将图片拖拽到此处，或点击选择',
+
+  segmentDropSubtitle: '支持 PNG / JPEG / WebP / AVIF · 图片不会离开这台设备',
+
+  segmentFirstRunHint:
+    '首次使用需要下载 45 MB 模型（编码器 27 MB + 解码器 16 MB），之后缓存在本机，不再重复下载。',
+
+  // 选点
+
+  segmentPickTitle: '点一下你想保留的主体',
+
+  segmentPickHint: '按住 Alt 点击（或右键）标记「不要」的部分。每点一次都会立刻重新算一遍。',
+
+  segmentSectionPrompt: '提示点',
+
+  segmentPromptKeep: '保留',
+
+  segmentPromptDrop: '排除',
+
+  segmentPromptNone: '还没有提示点 —— 在图片上点一下就能开始。',
+
+  segmentPromptCount: (keep: number, drop: number) =>
+    drop > 0 ? `${keep} 个保留 · ${drop} 个排除` : `${keep} 个保留`,
+
+  segmentUndo: '撤销上一点',
+
+  segmentClearPoints: '清空提示点',
+
+  segmentModeKeep: '保留',
+
+  segmentModeDrop: '排除',
+
+  segmentModeHint: '下一次点击会落成哪一类点。',
+
+  // 结果
+
+  segmentStagePick: '选点',
+
+  segmentStageResult: '结果',
+
+  segmentResultPlaceholder: '抠图结果会出现在这里',
+
+  segmentResultPlaceholderHint:
+    '在左边点一下想保留的主体，结果立刻显示；Alt 或 Shift 点击可以排除点错的地方。',
+
+  segmentReplace: '换一张图',
+
+  segmentDownload: '下载 PNG',
+
+  segmentScore: (percent: number) => `置信度 ${percent}%`,
+
+  segmentCoverage: (percent: number) => `主体占画面 ${percent}%`,
+
+  segmentEncodingCached: '图像编码已缓存 —— 后面每次点击只跑很快的解码器。',
+
+  segmentEncoderHint:
+    '想抠商品、宠物或 Logo 的精确轮廓？多点几下比换模型管用得多。',
+
+  segmentNoWebgpu:
+    '这台设备没有可用的 WebGPU，推理会回退到 WASM：编码一张 1024×1024 的图可能要好几秒，之后的每次点击仍然是快的。',
+
+  // 进度
+
+  segmentPhaseIdle: '准备中',
+
+  segmentPhaseFetchingEncoder: '下载编码器 · 27 MB',
+
+  segmentPhaseFetchingDecoder: '下载解码器 · 16 MB',
+
+  segmentPhaseWarmingUp: '初始化推理引擎',
+
+  segmentPhaseEncoding: '编码整张图 · 每张图只慢这一次',
+
+  segmentPhaseDecoding: '计算主体轮廓',
+
+  segmentPhaseCompositing: '合成中',
+
+  segmentPhaseDone: '完成',
+
+  segmentPhaseError: '出错',
+
+  segmentDownloadOnce: '只有第一次需要下载，之后这个文件会走本地缓存。',
+
+  // 错误
+
+  segmentErrorDecode: '无法读取这张图片，请换一张试试',
+
+  segmentErrorUnsupported: '请选择 PNG、JPG 或 WebP 格式的图片',
+
+  segmentErrorTooLarge: '图片超过 40 MB，请换一张小一点的',
+
+  segmentErrorModelDownload: (status: string) => `模型下载失败（${status}）`,
+
+  segmentErrorSessionInit: (detail: string) =>
+    `推理引擎初始化失败${detail ? `：${detail}` : ''}`,
+
+  segmentErrorTensor: (name: string) =>
+    `这个模型没有返回可用结果（输出：${name}）。多半是权重和预期的计算图对不上。`,
+
+  segmentErrorInvalidMask: '模型返回了不可用的遮罩，请换一张图片试试',
+
+  segmentErrorEmptyMask: '什么都没选中。请直接点在主体上，别点在空背景里。',
+
+  segmentNotes: {
+    mobilesam: {
+      note: 'Segment Anything（MobileSAM）。点一下圈出主体，继续点可以逐步修准，Alt 点击划掉不要的部分。不挑主体类型，人和物都能抠。',
+      tags: ['交互式', '45 MB'],
+    },
+  } as Record<string, { note: string; tags: string[] }>,
 };

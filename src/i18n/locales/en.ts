@@ -203,8 +203,12 @@ export const en = {
   cutoutDownloadOnce: 'Only the first run downloads — this file is cached afterwards.',
 
   // 结果附注
-  cutoutNoteMaskUpscaled: (maskEdge: number, outputEdge: number) =>
-    `Mask computed at ${maskEdge}px, scaled to ${outputEdge}px`,
+cutoutNoteMaskUpscaled: (
+    maskWidth: number,
+    maskHeight: number,
+    imageWidth: number,
+    imageHeight: number,
+  ) => `Mask computed at ${maskWidth}×${maskHeight}, scaled to ${imageWidth}×${imageHeight}`,
 
   // 错误
   cutoutErrorDecode: 'Could not read that image — please try another one',
@@ -355,6 +359,203 @@ export const en = {
   wmPosBottomLeft: 'Bottom left',
   wmPosBottomCenter: 'Bottom center',
   wmPosBottomRight: 'Bottom right',
+
+  // ---- point-cutout & crop-rotate (synced from upstream d59e440) ----
+
+  segmentTool: 'Click to Cut',
+
+  segmentToolDesc: 'Point at what to keep',
+
+  // 压缩选项
+
+  errorModelFetch:
+    'Could not download the model weights — neither the official host nor the mirror responded. Check your network or proxy and try again.',
+
+  editTool: 'Crop & Rotate',
+
+  editToolDesc: 'Crop, rotate, slice',
+
+  editDropTitle: 'Drop an image here, or click to choose',
+
+  editDropSubtitle: 'PNG / JPEG / WebP / AVIF · pure local processing, no model to download',
+
+  editFirstRunHint: 'This tool runs entirely on your device — nothing to download, and the image is never uploaded.',
+
+  editOriginal: 'Original',
+
+  editPreview: 'Preview',
+
+  editReplace: 'Choose another image',
+
+  editDownload: 'Download image',
+
+  editOutputSize: (width: number, height: number) => `Output ${width} × ${height} px`,
+
+  editSectionCrop: 'Crop',
+
+  editCropReset: 'Reset crop',
+
+  editSectionRotate: 'Rotate',
+
+  editRotateValue: (deg: number) => `${deg}°`,
+
+  editRotateStraighten: 'Auto-straighten',
+
+  editRotateStraightening: 'Analysing…',
+
+  editStraightenDone: (deg: number) => `Corrected by ${deg}° — fine-tune as you like`,
+
+  editStraightenFlat: 'This image already looks level',
+
+  editStraightenFailed: 'No straight lines to align to — please adjust by hand',
+
+  editSectionFlip: 'Flip',
+
+  editFlipHorizontal: 'Flip horizontally',
+
+  editFlipVertical: 'Flip vertically',
+
+  editResetAll: 'Reset all adjustments',
+
+  editSectionSlice: 'Slice',
+
+  editSliceCols: 'Columns',
+
+  editSliceRows: 'Rows',
+
+  editSliceGap: 'Gap',
+
+  editSlicePreview: 'Slice preview',
+
+  editSlicePreviewPiece: (width: number, height: number) => `${width}×${height} each`,
+
+  editSliceCount: (count: number) => `${count} tiles`,
+
+  editSliceDownload: 'Download slices (ZIP)',
+
+  editSlicePacking: 'Packing…',
+
+  editCropRatios: {
+    free: 'Free',
+    '1:1': '1:1',
+    '4:3': '4:3',
+    '3:4': '3:4',
+    '16:9': '16:9',
+    '9:16': '9:16',
+  } as Record<string, string>,
+
+  // ── Click to Cut (SAM) ───────────────────────────────────
+
+  segmentDropTitle: 'Drop an image here, or click to choose',
+
+  segmentDropSubtitle: 'PNG / JPEG / WebP / AVIF · the image never leaves this device',
+
+  segmentFirstRunHint:
+    'First use downloads a 45 MB model (27 MB encoder + 16 MB decoder). It is cached on your device and never downloaded again.',
+
+  // Picking
+
+  segmentPickTitle: 'Click the object you want to keep',
+
+  segmentPickHint: 'Alt-click or right-click marks anything to exclude. Every click re-runs the mask instantly.',
+
+  segmentSectionPrompt: 'Points',
+
+  segmentPromptKeep: 'Keep',
+
+  segmentPromptDrop: 'Exclude',
+
+  segmentPromptNone: 'No points yet — click the image to start.',
+
+  segmentPromptCount: (keep: number, drop: number) =>
+    drop > 0 ? `${keep} keep · ${drop} exclude` : `${keep} keep`,
+
+  segmentUndo: 'Undo last point',
+
+  segmentClearPoints: 'Clear all points',
+
+  segmentModeKeep: 'Keep',
+
+  segmentModeDrop: 'Exclude',
+
+  segmentModeHint: 'Pick which kind of point the next click drops.',
+
+  // Result
+
+  segmentStagePick: 'Pick',
+
+  segmentStageResult: 'Result',
+
+  segmentResultPlaceholder: 'The cutout shows up here',
+
+  segmentResultPlaceholderHint:
+    'Click the subject you want to keep on the left and the result appears instantly. Alt- or Shift-click excludes a spot you missed.',
+
+  segmentReplace: 'Choose another image',
+
+  segmentDownload: 'Download PNG',
+
+  segmentScore: (percent: number) => `Confidence ${percent}%`,
+
+  segmentCoverage: (percent: number) => `Subject covers ${percent}%`,
+
+  segmentEncodingCached: 'Encoding is cached — further clicks only re-run the fast decoder.',
+
+  segmentEncoderHint:
+    'Need the exact outline of a product, a pet, or a logo? Drop a few extra points instead of switching models.',
+
+  segmentNoWebgpu:
+    'This device has no WebGPU, so inference falls back to WASM. Encoding a 1024×1024 image may take several seconds — the clicks after that stay quick.',
+
+  // Progress
+
+  segmentPhaseIdle: 'Getting ready',
+
+  segmentPhaseFetchingEncoder: 'Downloading encoder · 27 MB',
+
+  segmentPhaseFetchingDecoder: 'Downloading decoder · 16 MB',
+
+  segmentPhaseWarmingUp: 'Starting inference engine',
+
+  segmentPhaseEncoding: 'Encoding image · slow, once per image',
+
+  segmentPhaseDecoding: 'Tracing the outline',
+
+  segmentPhaseCompositing: 'Compositing',
+
+  segmentPhaseDone: 'Done',
+
+  segmentPhaseError: 'Failed',
+
+  segmentDownloadOnce: 'Only the first run downloads anything. After that it is served from the local cache.',
+
+  // Errors
+
+  segmentErrorDecode: 'Could not read that image — please try another one',
+
+  segmentErrorUnsupported: 'Please choose a PNG, JPG or WebP image',
+
+  segmentErrorTooLarge: 'That image is over 40 MB — please pick a smaller one',
+
+  segmentErrorModelDownload: (status: string) => `Model download failed (${status})`,
+
+  segmentErrorSessionInit: (detail: string) =>
+    `Could not start the inference engine${detail ? `: ${detail}` : ''}`,
+
+  segmentErrorTensor: (name: string) =>
+    `The model returned nothing usable (output: ${name}). This usually means the weights did not match the expected graph.`,
+
+  segmentErrorInvalidMask: 'The model returned an unusable mask — please try another image',
+
+  segmentErrorEmptyMask:
+    'Nothing was selected. Click directly on the object you want, and avoid empty background.',
+
+  segmentNotes: {
+    mobilesam: {
+      note: 'Segment Anything (MobileSAM). One click picks an object; extra points refine it, and Alt-click removes parts you do not want. Works for any subject — not just people.',
+      tags: ['Interactive', '45 MB'],
+    },
+  } as Record<string, { note: string; tags: string[] }>,
 };
 
 export type Translation = typeof en;

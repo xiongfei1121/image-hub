@@ -464,19 +464,22 @@ export function WatermarkWorkbench() {
               {t.wmPosition}
             </label>
             <div id="wmgrid" className="grid grid-cols-3 gap-1.5">
-              {POSITIONS.map((p) => (
-                <button
-                  key={p.value}
-                  onClick={() => setPosition(p.value)}
-                  className={`rounded-lg px-2 py-1.5 text-xs font-medium transition ${
-                    position === p.value
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
-                  }`}
-                >
-                  {t[p.label]}
-                </button>
-              ))}
+              {POSITIONS.map((p) => {
+                const label = t[p.label];
+                return (
+                  <button
+                    key={p.value}
+                    onClick={() => setPosition(p.value)}
+                    className={`rounded-lg px-2 py-1.5 text-xs font-medium transition ${
+                      position === p.value
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
+                    }`}
+                  >
+                    {typeof label === 'string' ? label : String(label)}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

@@ -523,11 +523,14 @@ export function MergeWorkbench() {
               onChange={(e) => handleLayoutChange(e.target.value as Layout)}
               className={inputClass}
             >
-              {LAYOUT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {t[o.label]}
-                </option>
-              ))}
+              {LAYOUT_OPTIONS.map((o) => {
+                const label = t[o.label];
+                return (
+                  <option key={o.value} value={o.value}>
+                    {typeof label === 'string' ? label : String(label)}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -544,7 +547,8 @@ export function MergeWorkbench() {
                 onChange={(e) => {
                   const v = Number(e.target.value);
                   setGap(v);
-                  if (layout !== 'free') handleLayoutChange(layout, v);
+                  // 此处作用域内 layout 已被 JSX 条件收窄为不含 'free'，无需再判
+                  handleLayoutChange(layout, v);
                 }}
                 className="w-full accent-blue-600"
               />

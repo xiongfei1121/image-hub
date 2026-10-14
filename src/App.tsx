@@ -4,6 +4,7 @@ import {
   Image as ImageIcon,
   LayoutGrid,
   Maximize2,
+  MousePointerClick,
   Repeat,
   Scissors,
   Sparkles,
@@ -13,9 +14,11 @@ import { CompressWorkbench } from './components/compress/CompressWorkbench'
 import { ConvertWorkbench } from './components/convert/ConvertWorkbench'
 import { CropWorkbench } from './components/crop/CropWorkbench'
 import { CutoutWorkbench } from './components/cutout/CutoutWorkbench'
+import { EditWorkbench } from './components/edit/EditWorkbench'
 import { LanguageSwitcher } from './components/LanguageSwitcher'
 import { MergeWorkbench } from './components/merge/MergeWorkbench'
 import { ResizeWorkbench } from './components/resize/ResizeWorkbench'
+import { SegmentWorkbench } from './components/segment/SegmentWorkbench'
 import { UpscaleWorkbench } from './components/upscale/UpscaleWorkbench'
 import { WatermarkWorkbench } from './components/watermark/WatermarkWorkbench'
 import { languagePrefix, useTranslation } from './i18n'
@@ -29,6 +32,8 @@ type Tool =
   | 'watermark'
   | 'upscale'
   | 'cutout'
+  | 'segment'
+  | 'edit'
 
 const PATHS: Record<Tool, string> = {
   compress: '/',
@@ -39,6 +44,8 @@ const PATHS: Record<Tool, string> = {
   watermark: '/watermark/',
   upscale: '/upscale/',
   cutout: '/cutout/',
+  segment: '/segment/',
+  edit: '/edit/',
 }
 
 const TOOLS = Object.keys(PATHS) as Tool[]
@@ -86,6 +93,13 @@ export function App() {
     { id: 'watermark' as const, label: t.watermarkTool, desc: t.watermarkToolDesc, Icon: Stamp },
     { id: 'upscale' as const, label: t.upscaleTool, desc: t.upscaleToolDesc, Icon: Sparkles },
     { id: 'cutout' as const, label: t.cutoutTool, desc: t.cutoutToolDesc, Icon: Scissors },
+    {
+      id: 'segment' as const,
+      label: t.segmentTool,
+      desc: t.segmentToolDesc,
+      Icon: MousePointerClick,
+    },
+    { id: 'edit' as const, label: t.editTool, desc: t.editToolDesc, Icon: Crop },
   ]
 
   return (
@@ -141,6 +155,8 @@ export function App() {
         {tool === 'watermark' && <WatermarkWorkbench />}
         {tool === 'upscale' && <UpscaleWorkbench />}
         {tool === 'cutout' && <CutoutWorkbench />}
+        {tool === 'segment' && <SegmentWorkbench />}
+        {tool === 'edit' && <EditWorkbench />}
       </main>
 
       <div className="mx-auto max-w-6xl space-y-6 px-4 pb-10 sm:px-6">
