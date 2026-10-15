@@ -51,85 +51,76 @@ export function SegmentControls({
   const note = t.segmentNotes[SEGMENT_MODEL.id]
   const noWebgpu = capabilities !== null && !capabilities.webgpu
 
-  return (
-    <div className={['space-y-6', disabled ? 'pointer-events-none opacity-60' : ''].join(' ')}>
-      <section className="space-y-3">
+return (
+    <div
+      className={[
+        'flex w-full flex-wrap items-center gap-x-5 gap-y-2',
+        disabled ? 'pointer-events-none opacity-60' : '',
+      ].join(' ')}
+    >
+      <div className="flex items-center gap-2.5">
         <SectionLabel>{t.segmentSectionPrompt}</SectionLabel>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex gap-1.5">
           {MODES.map((value) => (
             <button
               key={value}
               type="button"
               onClick={() => onNextLabelChange(value)}
               className={[
-                'flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition',
+                'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition',
                 value === nextLabel
                   ? 'border-blue-500 bg-blue-50 text-neutral-900 dark:bg-blue-950/40 dark:text-neutral-100'
                   : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-700',
               ].join(' ')}
             >
-              <span className={`size-2 rounded-full ${MODE_DOT[value]}`} />
+              <span className={`size-1.5 rounded-full ${MODE_DOT[value]}`} />
               {value === 1 ? t.segmentModeKeep : t.segmentModeDrop}
             </button>
           ))}
         </div>
+      </div>
 
-        <p className="text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-          {t.segmentModeHint}
+      <span className="text-xs text-neutral-600 dark:text-neutral-300">
+        {points.length === 0 ? t.segmentPromptNone : t.segmentPromptCount(keep, drop)}
+      </span>
+
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onUndo}
+          disabled={points.length === 0}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-800 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+        >
+          <Undo2 className="size-3.5" />
+          {t.segmentUndo}
+        </button>
+        <button
+          type="button"
+          onClick={onClear}
+          disabled={points.length === 0}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-800 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+        >
+          <X className="size-3.5" />
+          {t.segmentClearPoints}
+        </button>
+      </div>
+
+      <p className="min-w-0 max-w-md text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">
+        {t.segmentModeHint}
+      </p>
+
+      {(note || noWebgpu) && (
+        <p className="w-full text-[11px] leading-relaxed text-neutral-400 dark:text-neutral-500">
+          <span>
+            {SEGMENT_MODEL.label} · {formatBytes(SEGMENT_DOWNLOAD_BYTES)} — {note.note}
+          </span>
+          <span className="ml-1.5"> {t.segmentEncoderHint}</span>
+          {noWebgpu && (
+            <span className="text-amber-600 dark:text-amber-400"> {t.segmentNoWebgpu}</span>
+          )}
         </p>
-
-        <p className="text-xs text-neutral-600 dark:text-neutral-300">
-          {points.length === 0 ? t.segmentPromptNone : t.segmentPromptCount(keep, drop)}
-        </p>
-
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onUndo}
-            disabled={points.length === 0}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-medium text-neutral-800 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-          >
-            <Undo2 className="size-3.5" />
-            {t.segmentUndo}
-          </button>
-          <button
-            type="button"
-            onClick={onClear}
-            disabled={points.length === 0}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-medium text-neutral-800 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-          >
-            <X className="size-3.5" />
-            {t.segmentClearPoints}
-          </button>
-        </div>
-      </section>
-
-      <section className="space-y-3">
-        <SectionLabel>{t.segmentStageResult}</SectionLabel>
-        <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950/40">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-              {SEGMENT_MODEL.label}
-            </span>
-            <span className="font-mono text-[11px] text-neutral-500 dark:text-neutral-400">
-              {formatBytes(SEGMENT_DOWNLOAD_BYTES)}
-            </span>
-          </div>
-          <p className="mt-1.5 text-xs leading-relaxed text-neutral-600 dark:text-neutral-300">
-            {note.note}
-          </p>
-          <p className="mt-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
-            {t.segmentEncoderHint}
-          </p>
-        </div>
-
-        {noWebgpu && (
-          <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
-            {t.segmentNoWebgpu}
-          </p>
-        )}
-      </section>
+      )}
     </div>
   )
 }

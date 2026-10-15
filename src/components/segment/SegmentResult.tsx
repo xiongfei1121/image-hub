@@ -5,6 +5,8 @@ import type { SegmentHandle } from '../../hooks/useSegment'
 
 interface SegmentResultProps {
   result: SegmentHandle
+  /** 结果图高度缩放倍率（1 = 默认 68vh 上限）。 */
+  scale?: number
   onDownload: () => void
   onReplace: () => void
 }
@@ -16,7 +18,7 @@ interface SegmentResultProps {
  * 透明区叠在原图上根本看不出来，用户会以为没抠成功。这条经验是从抠图工具
  * 那边直接搬过来的，代价是一次返工。
  */
-export function SegmentResult({ result, onDownload, onReplace }: SegmentResultProps) {
+export function SegmentResult({ result, onDownload, onReplace, scale = 1 }: SegmentResultProps) {
   const { t } = useTranslation()
   const backendLabel =
     result.backend === 'webgpu' ? t.upscaleBackendWebgpuShort : t.upscaleBackendWasmShort
@@ -55,7 +57,8 @@ export function SegmentResult({ result, onDownload, onReplace }: SegmentResultPr
             src={result.url}
             alt={t.cutoutResult}
             draggable={false}
-            className="block max-h-[48vh] w-full object-contain"
+            className="block w-full object-contain"
+            style={{ maxHeight: `calc(${68 * scale}vh)` }}
           />
         </div>
 

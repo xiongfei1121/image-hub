@@ -26,8 +26,10 @@ interface SegmentCanvasProps {
   resultUrl: string | null
   /** 正在推理：把画面压暗，顺便挡住重复点击。 */
   working: boolean
-  /** 下一次点击会落成哪一类点。 */
+/** 下一次点击会落成哪一类点。 */
   nextLabel: PromptLabel
+  /** 画布高度缩放倍率（1 = 默认 88vh 上限）。 */
+  scale?: number
   onPoint: (x: number, y: number, label: PromptLabel) => void
 }
 
@@ -49,8 +51,9 @@ export function SegmentCanvas({
   height,
   points,
   resultUrl,
-  working,
+working,
   nextLabel,
+  scale = 1,
   onPoint,
 }: SegmentCanvasProps) {
   const { t } = useTranslation()
@@ -146,7 +149,8 @@ export function SegmentCanvas({
           event.preventDefault()
           place(event, 0)
         }}
-        className="block h-auto max-h-[62vh] w-auto max-w-full cursor-crosshair touch-none rounded-lg select-none"
+        className="block h-auto w-auto max-w-full cursor-crosshair touch-none rounded-lg select-none"
+        style={{ maxHeight: `calc(${88 * scale}vh)` }}
       />
 
       {/* 标记层：画布盒子就是图片，所以百分比定位是精确的。 */}

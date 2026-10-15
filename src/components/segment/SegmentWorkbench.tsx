@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { MousePointerClick, X } from 'lucide-react'
+import { useState, type CSSProperties } from 'react'
+import { Maximize2, MousePointerClick, X } from 'lucide-react'
 import { useTranslation } from '../../i18n'
 import { useSegment } from '../../hooks/useSegment'
 import { downloadBlob } from '../../lib/imageOutput'
@@ -43,6 +43,7 @@ export function SegmentWorkbench() {
   } = useSegment()
 
   const [nextLabel, setNextLabel] = useState<PromptLabel>(1)
+  const [canvasScale, setCanvasScale] = useState(1)
 
   const working = status === 'working'
 
@@ -70,24 +71,45 @@ export function SegmentWorkbench() {
   // 因为它经常只反映中间状态，用户下一笔就修好了。
   const isSoftError = error instanceof SegmentError && error.code === 'empty-mask'
 
-  return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <div className="space-y-4">
-        {working && <SegmentProgressPanel progress={progress} />}
+return (
+    <div className="space-y-4">
+      {working && <SegmentProgressPanel progress={progress} />}
 
-        {error && (
-          <ErrorBanner
-            message={describeSegmentError(error, t)}
-            tone={isSoftError ? 'warn' : 'error'}
-            onDismiss={isSoftError ? dismissError : undefined}
-          />
-        )}
+      {error && (
+        <ErrorBanner
+          message={describeSegmentError(error, t)}
+          tone={isSoftError ? 'warn' : 'error'}
+          onDismiss={isSoftError ? dismissError : undefined}
+        />
+      )}
 
-        {/* 左选点、右结果：同屏才能边点边看。窄屏时自动上下堆叠。 */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <figure className="space-y-2">
-            <figcaption className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
-              {t.segmentStagePick}
+{/* 左选点、右结果：同屏才能边点边看。窄屏时自动上下堆叠。画布占大份，结果占小份；控制栏挪到下方一条，不再挤占画布空间。 */}
+        <div
+          className="grid gap-4 md:grid-cols-[var(--canvas-cols)]"
+          style={
+            {
+              '--canvas-cols': `minmax(0, ${(2.2 * canvasScale).toFixed(2)}fr) minmax(0, 1fr)`,
+            } as CSSProperties
+          }
+        >
+          <figure className="min-w-0 space-y-2">
+            <figcaption className="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              <span>{t.segmentStagePick}</span>
+              <label className="flex items-center gap-1.5 text-[11px] font-normal" title="画框大小">
+                <Maximize2 className="size-3.5" />
+                <input
+                  type="range"
+                  min={0.5}
+                  max={1.5}
+                  step={0.05}
+                  value={canvasScale}
+                  onChange={(event) => setCanvasScale(Number(event.target.value))}
+                  className="h-1.5 w-24 cursor-pointer accent-blue-500"
+                />
+                <span className="w-9 text-neutral-600 dark:text-neutral-300">
+                  {Math.round(canvasScale * 100)}%
+                </span>
+              </label>
             </figcaption>
             <div className="flex items-center justify-center overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50 p-2 dark:border-neutral-800 dark:bg-neutral-950">
               <SegmentCanvas
@@ -98,6 +120,7 @@ export function SegmentWorkbench() {
                 resultUrl={result?.url ?? null}
                 working={working}
                 nextLabel={nextLabel}
+                scale={canvasScale}
                 onPoint={addPoint}
               />
             </div>
@@ -106,10 +129,11 @@ export function SegmentWorkbench() {
             </figcaption>
           </figure>
 
-          <div className="flex flex-col">
+          <div className="flex min-w-0 flex-col gap-4">
             {result ? (
               <SegmentResult
                 result={result}
+                scale={canvasScale}
                 onDownload={() => downloadBlob(result.blob, buildFileName(source.fileName))}
                 onReplace={reset}
               />
@@ -126,10 +150,9 @@ export function SegmentWorkbench() {
             )}
           </div>
         </div>
-      </div>
 
-      <aside className="space-y-5">
-        <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900">
+        {/* 控制栏：横向一条，把原先右侧的大卡片折叠掉，垂直与横向空间都还给画布。 */}
+        <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900">
           <SegmentControls
             points={points}
             nextLabel={nextLabel}
@@ -143,7 +166,6 @@ export function SegmentWorkbench() {
         <p className="text-center text-[11px] text-neutral-400 dark:text-neutral-500">
           {backendLabel}
         </p>
-      </aside>
     </div>
   )
 }
